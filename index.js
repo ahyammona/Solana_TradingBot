@@ -9,10 +9,10 @@ const port = 5001;
 app.use(express.json());
 
 //swap.buy('0xec5dcb5dbf4b114c9d0f65bccab49ec54f6a0867');
-swap.sell('0xCb173460EF9C54dA4EA913273D947f40fEB224ED');
+//swap.sell('0xCb173460EF9C54dA4EA913273D947f40fEB224ED');
 //0xec5dcb5dbf4b114c9d0f65bccab49ec54f6a0867
 //0xeD24FC36d5Ee211Ea25A80239Fb8C4Cfd80f12Ee
-//bsc.bscFactory();
+bsc.bscFactory();
 //arb.arbFactory();
 
 app.listen(port, () => {
