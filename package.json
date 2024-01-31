@@ -1,0 +1,23 @@
+{
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "ethers": "5.7",
+    "express": "^4.18.2",
+    "ngrok": "^5.0.0-beta.2",
+    "node-telegram-bot-api": "^0.64.0",
+    "nodemon": "^3.0.3"
+  },
+  "scripts": {
+    "start": "nodemon index.js"
+  },
+  "devDependencies": {
+    "truffle": "^5.11.5"
+  },
+  "config": {
+    "bsc": {
+        "networkId": 56,
+        "gasPrice": 25000000000,
+        "gasLimit": 6500000
+    }
+}
+}
