@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require("express");
 const ethers = require("ethers");
+const telegram = require("./bot/telegram")
 const bsc = require('./network-main/index-bsc');
 const arb = require('./network-main/index-eth');
 const swap = require('./network-main/swap');
@@ -9,7 +10,6 @@ const port = 5001;
 const rug = require("./network-main/antirug");
 
 app.use(express.json());
-
 
 
 

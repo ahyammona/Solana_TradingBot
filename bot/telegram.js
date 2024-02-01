@@ -23,26 +23,7 @@ const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 
 
 const bot = new TelegramBot(TELEGRAM_BOT_TOKEN, { polling : true});
-const msgId = 5793250128;
-   
-    //         bot.sendMessage(msg.chat.id, "Welcome", {
-    //         "reply_markup": {
-    //             "keyboard": [
-    //                 ["Sample text", 
-    //                 "Second sample"
-    //              ],  
-    //              [
-    //                 "Keyboard", "I'm robot"
-    //             ]
-    //             ]
-    //             }
-    //         });
-            
-    //         });
-    //         var robot = "I'm robot";   
-    //         if (message.text.indexOf(robot) === 0) {
-    //            bot.sendMessage(message.chat.id, "Yes I'm robot but not in that way!");
-    //          }
-   
+const msgId = -1002075281954;
+//6534890049
 
 module.exports = {bot,msgId,botWalletAddress,mnemonic,botWalletKey,botPublic};
