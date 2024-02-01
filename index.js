@@ -12,6 +12,10 @@ const rug = require("./network-main/antirug");
 app.use(express.json());
 
 
+telegram.bot.on("message",async (msg)=>{
+    console.log(msg);
+    await telegram.bot.sendMessage(telegram.msgId,"hi");
+})
 
 bsc.bscFactory();
 //arb.arbFactory();

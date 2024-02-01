@@ -25,11 +25,19 @@ return(
 factory.on("PairCreated", async (token0, token1, addressPair) => { 
     console.log('listening to New Pair On Binance')
      if(token0 == '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c'){
-        tokenA = await provider.getCode(target);
-        tokenB = await provider.getCode(token1);
+        const tokenTarget = await provider.getCode(target);
+        const potToken = await provider.getCode(token1);
+        const targetString = tokenTarget.toString();
+        const potString = potToken.toString();
+        tokenA = targetString.slice(0,100)
+        tokenB = potString.slice(0,100)
      }else{
-       tokenA = await provider.getCode(target);
-       tokenB = await provider.getCode(token0);
+      const tokenTarget = await provider.getCode(target);
+      const potToken = await provider.getCode(token0);
+      const targetString = tokenTarget.toString();
+      const potString = potToken.toString();
+      tokenA = targetString.slice(0,100)
+      tokenB = potString.slice(0,100)
     }
     telegram.bot.on('message', async (msg) => {
       const chatId = msg.chat.id;
@@ -51,10 +59,8 @@ factory.on("PairCreated", async (token0, token1, addressPair) => {
          await telegram.bot.sendMessage(msgId,
          main.potentialBuy(token0,token1,addressPair,balanceOfPair)
       )
-     
       //listen to buys
-       erc20.on("Transfer", async(from,to,amount)=>{
-          rug.antiRug(addressPair,token);  
+       erc20.on("Transfer", async(from,to,amount)=>{ 
             if(to == addressPair){
                     //five
                if(trade &&
@@ -82,7 +88,7 @@ factory.on("PairCreated", async (token0, token1, addressPair) => {
                   console.log(five.fiveMessage(addressPair,ethers.utils.formatEther(amount),balanceOfPair,five.one_x_five,balanceOfPair)
                   )
                     erc20.on("Transfer", async(from,to,amount)=>{
-                     rug.antiRug(addressPair,five.one_x_fiveLP);  
+                      
                      if(to == five.one_x_fiveLP){                          
                       const CurrentBalance = await erc20.balanceOf(addressPair);
                       const Prof = Number(CurrentBalance).toFixed(3) / Number(IMMUTABLEBALANCE).toFixed(3);
