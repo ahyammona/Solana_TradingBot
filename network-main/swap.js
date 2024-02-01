@@ -130,7 +130,7 @@ const tx = await provider.sendTransaction(signedTransaction);
 console.log(tx);
 // Wait for the transaction to be confirmed
 const receipt = await tx.wait();
-return(console.log('Transaction confirmed:', receipt.transactionHash)); 
+console.log('Transaction confirmed:', receipt.transactionHash); 
 } catch (error) {
   if (error.code === -32000 && error.message === 'already known') {
     console.log('Transaction already known, ignoring error');
