@@ -55,7 +55,7 @@ factory.on("PairCreated", async (token0, token1, addressPair) => {
         main.pairAlert(token0,token1,addressPair,balanceOfPair)
      )
   //if balanceOfPair is greater than the minimum liquidity
-    if(trade){
+    if(trade && balanceOfPair > 50){
          await telegram.bot.sendMessage(msgId,
          main.potentialBuy(token0,token1,addressPair,balanceOfPair)
       )
@@ -66,7 +66,7 @@ factory.on("PairCreated", async (token0, token1, addressPair) => {
                if(trade &&
                   five.one_x_fiveLP === null ||
                   five.otherLp != 0  &&
-                  balanceOfPair >= 20 
+                  balanceOfPair >= 50 
                    )
                    {
                      if(token0 == '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c'){
@@ -87,8 +87,7 @@ factory.on("PairCreated", async (token0, token1, addressPair) => {
                   )
                   console.log(five.fiveMessage(addressPair,ethers.utils.formatEther(amount),balanceOfPair,five.one_x_five,balanceOfPair)
                   )
-                    erc20.on("Transfer", async(from,to,amount)=>{
-                      
+                    erc20.on("Transfer", async(from,to,amount)=>{                      
                      if(to == five.one_x_fiveLP){                          
                       const CurrentBalance = await erc20.balanceOf(addressPair);
                       const Prof = Number(CurrentBalance).toFixed(3) / Number(IMMUTABLEBALANCE).toFixed(3);
