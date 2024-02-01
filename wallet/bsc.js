@@ -11,13 +11,13 @@ const addresses = {
     myAddress : key.botWalletAddress
 }
 
-//const provider2 = new ethers.providers.JsonRpcProvider("https://bsc-dataseed.binance.org/")
-//const provider = new ethers.providers.JsonRpcProvider("https://rpc.ankr.com/bsc/f19c5299523c148fe79a2ef247bda303045c32418d9f6ad946627be6a85a1f67");
-const provider = new ethers.providers.WebSocketProvider("wss://solitary-magical-shadow.bsc.quiknode.pro/0c3925605cc3b4ba232f826d940ad6f8f338ba54/")
-const provider2 = new ethers.providers.WebSocketProvider("wss://bsc.publicnode.com");
+const provider = new ethers.providers.JsonRpcProvider("https://bsc-dataseed.binance.org/")
+const provider2 = new ethers.providers.JsonRpcProvider("https://rpc.ankr.com/bsc/f19c5299523c148fe79a2ef247bda303045c32418d9f6ad946627be6a85a1f67");
+//const provider = new ethers.providers.WebSocketProvider("wss://solitary-magical-shadow.bsc.quiknode.pro/0c3925605cc3b4ba232f826d940ad6f8f338ba54/")
+//const provider2 = new ethers.providers.WebSocketProvider("wss://bsc.publicnode.com");
 const wallet = new ethers.Wallet(botWalletKey,provider2);
 const account = wallet.connect(provider2)
-
+const approval = wallet.connect(provider)
 
 
 const factory = new ethers.Contract(
@@ -36,7 +36,7 @@ const ERC20_ABI = [
 ]
 
 const approve = async(token) => {
-    const erc20 = new ethers.Contract(token,ERC20_ABI,account);
+    const erc20 = new ethers.Contract(token,ERC20_ABI,approval);
   
     const amountIn = await erc20.balanceOf(addresses.me);
     await erc20.approve(addresses.router,amountIn + amountIn);

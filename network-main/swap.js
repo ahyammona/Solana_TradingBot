@@ -108,7 +108,7 @@ const sell = async (token) => {
   buyToken: ${amountIn.toString()} ${token} (WBNB)
   sellToken: ${amountOutMin.toString()} ${addresses.WBNB}
   `);
-  
+  try{ 
   var options = {
       gasPrice: ethers.utils.parseUnits('10','gwei'),
       gasLimit: 250000
@@ -131,7 +131,13 @@ console.log(tx);
 // Wait for the transaction to be confirmed
 const receipt = await tx.wait();
 return(console.log('Transaction confirmed:', receipt.transactionHash)); 
-
+} catch (error) {
+  if (error.code === -32000 && error.message === 'already known') {
+    console.log('Transaction already known, ignoring error');
+   } else {
+     console.error('Unexpected error:', error);
+   }
+ }
 };
 
 module.exports = {buy,sell};

@@ -5,21 +5,32 @@ const telegram = require('../bot/telegram');
 const web3 = require('../wallet/bsc')
 const ethers = require("ethers");
 const swap = require("../network-main/swap");
-const rug = require("../network-main/antirug");
+//const rug = require("../network-main/antirug");
+
+//const provider = new ethers.providers.JsonRpcBatchProvider("https://bsc-testnet.public.blastapi.io");
+const provider = new ethers.providers.JsonRpcProvider("https://bsc-dataseed.binance.org/")
 
 let token;
 let trade = true;
-let purchase = 0;
+let tokenA;
+let tokenB;
 const msgId = telegram.msgId;
 const erc20 = web3.erc20;
 let buys = 0;
 const factory = web3.factory;
+let target = '0xCb173460EF9C54dA4EA913273D947f40fEB224ED';
 
 const bscFactory = ()=> {
 return(   
 factory.on("PairCreated", async (token0, token1, addressPair) => { 
     console.log('listening to New Pair On Binance')
-    rug.antiRug(addressPair,addressPair);
+     if(token0 == '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c'){
+        tokenA = await provider.getCode(target);
+        tokenB = await provider.getCode(token1);
+     }else{
+       tokenA = await provider.getCode(target);
+       tokenB = await provider.getCode(token0);
+    }
     telegram.bot.on('message', async (msg) => {
       const chatId = msg.chat.id;
       if(msg.text == 'sell'){
@@ -27,9 +38,9 @@ factory.on("PairCreated", async (token0, token1, addressPair) => {
          await web3.approve(token);
          await swap.sell(token);
          telegram.bot.sendMessage(msgId,`SOLD ${token} with Pair ${addressPair}`)
-         purchase -= 1;
       }
     });
+    if(tokenA != tokenB){
     const IMMUTABLEBALANCE = await erc20.balanceOf(addressPair);
     const balanceOfPair = parseInt(ethers.utils.formatEther(IMMUTABLEBALANCE));
      await telegram.bot.sendMessage(msgId,
@@ -43,7 +54,7 @@ factory.on("PairCreated", async (token0, token1, addressPair) => {
      
       //listen to buys
        erc20.on("Transfer", async(from,to,amount)=>{
-         rug.antiRug(addressPair,addressPair);  
+          rug.antiRug(addressPair,token);  
             if(to == addressPair){
                     //five
                if(trade &&
@@ -58,7 +69,7 @@ factory.on("PairCreated", async (token0, token1, addressPair) => {
                         token = token0;
                      }
                        await swap.buy(token);
-                        purchase +1;
+                     
                         telegram.bot.sendMessage(msgId,`Purchased ${token} with Pair ${addressPair}`)
                      
                     five.one_x_fiveLP = addressPair;
@@ -91,14 +102,14 @@ factory.on("PairCreated", async (token0, token1, addressPair) => {
                         await swap.sell(token);
                         
                         telegram.bot.sendMessage(msgId,`SOLD ${token} with Pair ${addressPair}`)
-                        purchase -= 1;
                      }
                  }  
              })
            }         
-        }
-     })
-   }
+         }
+      })
+    }
+  }
  })
 )
 }
