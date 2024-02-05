@@ -11,7 +11,7 @@ const addresses = {
     myAddress : key.botWalletAddress
 }
 
-const provider2 = new ethers.providers.JsonRpcProvider("https://mainnet.infura.io/v3/b3a9dea8f5654645b721a31461e580cb")
+const provider2 = new ethers.JsonRpcProvider("https://mainnet.infura.io/v3/b3a9dea8f5654645b721a31461e580cb")
 //const provider2 = new ethers.JsonRpcProvider("https://rpc.ankr.com/bsc/f19c5299523c148fe79a2ef247bda303045c32418d9f6ad946627be6a85a1f67");
 //const provider = new ethers.WebSocketProvider("wss://solitary-magical-shadow.bsc.quiknode.pro/0c3925605cc3b4ba232f826d940ad6f8f338ba54/")
 //const provider = new ethers.WebSocketProvider("wss://arb-mainnet.g.alchemy.com/v2/SD2wtO_U3PMQTZO_3Hsqbyxhc8a9XqeM");
@@ -43,7 +43,7 @@ const erc20 = new ethers.Contract(addresses.WBNB,ERC20_ABI,provider2);
 //     console.log(mybal)
 // }
 //   myBal();
-  const amountIn = ethers.utils.parseUnits('0.1', 'ether'); //ether is the measurement, not the coin
+  const amountIn = ethers.parseUnits('0.1', 'ether'); //ether is the measurement, not the coin
     // // math for Big numbers in JS
  
     // const tx = async (token1, token2) => {

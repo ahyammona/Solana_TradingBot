@@ -11,10 +11,16 @@ const addresses = {
     myAddress : key.botWalletAddress
 }
 
-const provider = new ethers.providers.JsonRpcProvider("https://bsc-dataseed.binance.org/")
-const provider2 = new ethers.providers.JsonRpcProvider("https://rpc.ankr.com/bsc/f19c5299523c148fe79a2ef247bda303045c32418d9f6ad946627be6a85a1f67");
-//const provider = new ethers.providers.WebSocketProvider("wss://solitary-magical-shadow.bsc.quiknode.pro/0c3925605cc3b4ba232f826d940ad6f8f338ba54/")
-//const provider2 = new ethers.providers.WebSocketProvider("wss://bsc.publicnode.com");
+
+const provider2 = new ethers.JsonRpcProvider("https://solitary-magical-shadow.bsc.quiknode.pro/0c3925605cc3b4ba232f826d940ad6f8f338ba54/");
+//const provider2 = new ethers.JsonRpcProvider("https://rpc.ankr.com/multichain/f19c5299523c148fe79a2ef247bda303045c32418d9f6ad946627be6a85a1f67");
+//const provider = new ethers.JsonRpcProvider('https://binance.llamarpc.com');	
+//const provider2 = new ethers.JsonRpcProvider("https://bsc-dataseed.bnbchain.org");
+//const provider2 = new ethers.JsonRpcProvider("https://bsc-dataseed.binance.org/");
+const provider = new ethers.JsonRpcProvider("https://rpc.ankr.com/bsc/f19c5299523c148fe79a2ef247bda303045c32418d9f6ad946627be6a85a1f67");
+//const provider = new ethers.SocketProvider("wss://solitary-magical-shadow.bsc.quiknode.pro/0c3925605cc3b4ba232f826d940ad6f8f338ba54/")
+//const provider2 = new ethers.WebSocketProvider("wss://bsc.publicnode.com");
+
 const wallet = new ethers.Wallet(botWalletKey,provider2);
 const account = wallet.connect(provider2)
 const approval = wallet.connect(provider)

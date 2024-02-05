@@ -4,21 +4,29 @@ const ethers = require("ethers");
 const telegram = require("./bot/telegram")
 const bsc = require('./network-main/index-bsc');
 const arb = require('./network-main/index-eth');
-const swap = require('./network-main/swap');
+const lp = require("./oneX/five");
+const rug = require("./network-main/antirug");
 const app = express();
 const port = 5001;
-const rug = require("./network-main/antirug");
-
+const test = require("./oneX/require");
 app.use(express.json());
+const _token = bsc.token;
+const pair = lp.one_x_fiveLP;
+
+// test.add("10");
+
+//  test.add("1");
 
 
-telegram.bot.on("message",async (msg)=>{
-    console.log(msg);
-    await telegram.bot.sendMessage(telegram.msgId,"hi");
-})
-
+//  test.get();
 bsc.bscFactory();
 //arb.arbFactory();
+if(_token != null){
+rug.getPendingRemoveLiquidityTransactions(pair,_token);
+}else{
+    console.log(`token is null`);
+}
+
 
 app.listen(port, () => {
  }) 
