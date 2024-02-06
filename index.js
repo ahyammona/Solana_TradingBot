@@ -13,12 +13,15 @@ app.use(express.json());
 const _token = bsc.token;
 const pair = lp.one_x_fiveLP;
 
+//  test.add("10");
+
+// test.add("10");
+// test.add("10");
 // test.add("10");
 
-//  test.add("1");
 
 
-//  test.get();
+  //test.get();
 bsc.bscFactory();
 //arb.arbFactory();
 if(_token != null){
