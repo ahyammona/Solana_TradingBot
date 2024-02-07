@@ -50,13 +50,14 @@ return(
         }
          await telegram.bot.sendMessage(msgId,
          main.potentialBuy(token0,token1,addressPair,balanceOfPair)
-      )
+      ) 
       //listen to buys
        erc20.on("Transfer", async(from,to,amount)=>{ 
             if(to == addressPair
                 && trade == true &&
                 soldTokens !== addressPair
-                ){  //five
+                ){  
+                   //five
                    {
                      if(token0 == '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c'){
                         token = token1;
@@ -137,7 +138,24 @@ return(
                      //   await swap.sell(token);
                         telegram.bot.sendMessage(msgId,`SOLD ${token} with Pair ${addressPair}`)
                      }
-                  
+                     if(buys > 16 &&
+                        Prof < 1.4
+                         ){
+                        if(lastbuys[count-2] !== addressPair || lastbuys[count-2] !== five.one_x_fiveLP){
+                        trade = true;
+                        profitHit = false;
+                        Prof = 0;
+                        buys = 0;
+                        soldTokens = five.one_x_fiveLP
+                        buyNumber = 0;
+                        }
+                        if(count == 5){
+                        lastbuys.shift();
+                        }
+                                         //       await web3.approve(token);
+                     //   await swap.sell(token);
+                        telegram.bot.sendMessage(msgId,`Target Not Hit--SOLD ${token} with Pair ${addressPair}`)
+                     }
                  }  
              })
            }         
