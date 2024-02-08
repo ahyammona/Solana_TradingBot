@@ -26,22 +26,6 @@ const bscFactory = ()=> {
 return(   
   factory.on("PairCreated", async (token0, token1, addressPair) => { 
     console.log('listening to New Pair On Binance')
-      telegram.bot.on('message', async (msg) => {
-      const chatId = msg.chat.id;
-      if(msg.text == 'sell'){
-         try{
-         await telegram.bot.sendMessage(chatId, `selling ${token}`);
-         //await web3.approve(token);
-         //await swap.sell(token);\        
-         trade = true;
-         count = count - 1;
-         soldTokens = token;
-         telegram.bot.sendMessage(msgId,`SOLD ${token} with Pair ${addressPair}`)
-         }catch (error){
-            console.log(error)
-         }
-   }
-    });
     const IMMUTABLEBALANCE = await erc20.balanceOf(addressPair);
     const balanceOfPair = parseInt(ethers.formatEther(IMMUTABLEBALANCE));
     if(balanceOfPair > 10){
@@ -156,6 +140,31 @@ return(
                      //   await swap.sell(token);
                         telegram.bot.sendMessage(msgId,`Target Not Hit--SOLD ${token} with Pair ${addressPair}`)
                      }
+                     telegram.bot.on('message', async (msg) => {
+                        const chatId = msg.chat.id;
+                        if(msg.text == 'sell'){
+                           try{
+                           await telegram.bot.sendMessage(chatId, `selling ${token}`);
+                           //await web3.approve(token);
+                           if(lastbuys[count-2] !== addressPair || lastbuys[count-2] !== five.one_x_fiveLP){
+                              trade = true;
+                              profitHit = false;
+                              Prof = 0;
+                              buys = 0;
+                              soldTokens = five.one_x_fiveLP
+                              buyNumber = 0;
+                              }
+                              if(count == 5){
+                              lastbuys.shift();
+                              }
+                                               //       await web3.approve(token);
+                           //   await swap.sell(token);
+                              telegram.bot.sendMessage(msgId,`Sell Command -- SOLD ${token} with Pair ${addressPair}`)
+                           }catch (error){
+                              console.log(error)
+                           }
+                      }
+                      });
                  }  
              })
            }         
