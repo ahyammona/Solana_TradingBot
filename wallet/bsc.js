@@ -11,11 +11,11 @@ const addresses = {
     myAddress : key.botWalletAddress
 }
 
-const provider = new ethers.JsonRpcProvider("https://bsc-dataseed1.binance.org/")
+//const provider = new ethers.JsonRpcProvider("https://bsc-dataseed1.binance.org/")
 //const provider2 = new ethers.JsonRpcProvider("https://bsc-dataseed2.binance.org/
 //const provider = new ethers.JsonRpcProvider("https://bsc-dataseed3.binance.org/")
 //const provider = new ethers.JsonRpcProvider("https://bsc-dataseed4.binance.org/")
-//const provider2 = new ethers.JsonRpcProvider("https://bsc-dataseed1.defibit.io/")
+const provider2 = new ethers.JsonRpcProvider("https://bsc-dataseed1.defibit.io/")
 //const provider = new ethers.JsonRpcProvider("https://bsc-dataseed2.defibit.io/")
 //const provider = new ethers.JsonRpcProvider("https://bsc-dataseed3.defibit.io/")
 //const provider = new ethers.JsonRpcProvider("https://bsc-dataseed4.defibit.io/")
@@ -27,9 +27,9 @@ const provider = new ethers.JsonRpcProvider("https://bsc-dataseed1.binance.org/"
 //const provider = new ethers.JsonRpcProvider("https://rpc.ankr.com/bsc");
 //const provider = new ethers.JsonRpcProvider("https://solitary-magical-shadow.bsc.quiknode.pro/0c3925605cc3b4ba232f826d940ad6f8f338ba54/");
 //const provider = new ethers.JsonRpcProvider('https://bsc.meowrpc.com');	
-const provider2 = new ethers.JsonRpcProvider("https://bsc-dataseed.bnbchain.org");
+//const provider2 = new ethers.JsonRpcProvider("https://bsc-dataseed.bnbchain.org");
 //const provider2 = new ethers.JsonRpcProvider("https://bsc-dataseed.binance.org/");
-//const provider2 = new ethers.JsonRpcProvider("https://rpc.ankr.com/bsc/f19c5299523c148fe79a2ef247bda303045c32418d9f6ad946627be6a85a1f67");
+const provider = new ethers.JsonRpcProvider("https://rpc.ankr.com/bsc/f19c5299523c148fe79a2ef247bda303045c32418d9f6ad946627be6a85a1f67");
 //const provider2 = new ethers.WebSocketProvider("wss://solitary-magical-shadow.bsc.quiknode.pro/0c3925605cc3b4ba232f826d940ad6f8f338ba54/")
 //const provider2 = new ethers.WebSocketProvider("wss://bsc.publicnode.com");
 
