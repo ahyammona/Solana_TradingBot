@@ -141,10 +141,9 @@ return(
                         telegram.bot.sendMessage(msgId,`Target Not Hit--SOLD ${token} with Pair ${addressPair}`)
                      }
                      telegram.bot.on('message', async (msg) => {
-                        const chatId = msg.chat.id;
                         if(msg.text == 'sell'){
+                           console.log(msg);
                            try{
-                           await telegram.bot.sendMessage(chatId, `selling ${token}`);
                            //await web3.approve(token);
                            if(lastbuys[count-2] !== addressPair || lastbuys[count-2] !== five.one_x_fiveLP){
                               trade = true;
@@ -159,7 +158,7 @@ return(
                               }
                                                //       await web3.approve(token);
                            //   await swap.sell(token);
-                              telegram.bot.sendMessage(msgId,`Sell Command -- SOLD ${token} with Pair ${addressPair}`)
+                              console.log(`Sell Command -- SOLD ${token} with Pair ${addressPair}`)
                            }catch (error){
                               console.log(error)
                            }

@@ -1,12 +1,25 @@
-const axios = require('axios');
+const ethers = require("ethers");
 const swap = require('./swap');
 
-async function getPendingRemoveLiquidityTransactions(pairAddress, tokenAddress) {
+const provider = new ethers.JsonRpcProvider("https://bsc-dataseed1.ninicoin.io/");
+
+const ERC20_ABI = [
+  "function name() view returns(string)",
+  "function symbol() view returns(string)",
+  "function totalSupply() view returns(uint256)",
+  "function balanceOf(address) view returns(uint)",
+  "function owner() view returns(address)",
+  "event Transfer(address indexed from, address indexed to, uint amount)"
+]
+
+async function getPendingRemoveLiquidityTransactions(pairAddress, token) {
+  const erc20 = new ethers.Contract(token,ERC20_ABI,provider);
   try {
-    const response = await axios.get(`https://api.bscscan.com/api?module=logs&action=getLogs&fromBlock=latest&toBlock=latest&address=${pairAddress}&topic0=0x78a07f0249c1e7a08e32a7a00f11a4d59474a72d&topic1=${tokenAddress}&apikey=7HJ28MPDINE9E3DKG2WFE3STPZHCBB365D`);
-    const logs = response.data.result;
-    //await swap.sell(tokenAddress);
-    console.log(`Pending remove liquidity transactions for token at ${tokenAddress} for contract at ${pairAddress}:`, logs);
+   await  erc20.on("Transfer", async(from,to,amount)=>{
+      if(from === pairAddress){
+        console.log(`Pending remove liquidity transactions for token at ${token} for contract at ${pairAddress}:`);
+      }
+    })
   } catch (error) {
     console.error(error);
   }
