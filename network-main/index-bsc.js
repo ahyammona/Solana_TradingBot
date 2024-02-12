@@ -56,13 +56,13 @@ return(
                      let target = '0x608060405234801561001057600080fd5b5060';
                      const tokenA = await honey.getBytecode(token);
                      if(tokenA == target && potCount < 1){
-                        telegram.bot.sendMessage(msgId,`Honey Pot Detected: ${tokenTarget} with ${target} Similar to ${token}`)
+                        console.log(`Honey Pot Detected: ${tokenTarget} with ${target} Similar to ${token}`)
                         potCount += 1;
                      }
                      if(lastbuys[count-2] == addressPair && lastbuys[count-2] == five.one_x_fiveLP){
-                        telegram.bot.sendMessage(`duplicated pair`);
+                        console.log(`duplicated pair`);
                      }else{
-                   //    await swap.buy(token); 
+                       await swap.buy(token); 
                         //await addons.add(addressPair);
                         five.one_x_fiveLP = potentialTokens;
                         count = count + 1;
@@ -73,7 +73,7 @@ return(
                            count -= 1;
                         }
                        if(five.one_x_fiveLP == addressPair){
-                       await telegram.bot.sendMessage(msgId,`Purchased --- Liquidity Pair:: ${five.one_x_fiveLP}`)                          
+                      console.log(`Purchased --- Liquidity Pair:: ${five.one_x_fiveLP}`)                          
                        await telegram.bot.sendMessage(msgId,
                         five.fiveMessage(five.one_x_fiveLP,ethers.formatEther(amount),balanceOfPair,five.one_x_five,balanceOfPair)
                       )
@@ -81,8 +81,6 @@ return(
                       console.log(five.fiveMessage(addressPair,ethers.formatEther(amount),balanceOfPair,five.one_x_five,balanceOfPair)
                       )
                      
-                      console.log(count);
-                     console.log(`last buys :${lastbuys[count-2]}`)
                      trade = false;
                      }
                   }
@@ -105,7 +103,9 @@ return(
                      if(profitHit === true &&
                         Prof > five.one_x_five 
                          ){
+                           
                         if(lastbuys[count-2] !== addressPair || lastbuys[count-2] !== five.one_x_fiveLP){
+                        await swap.sell(token);
                         telegram.bot.sendMessage(msgId,
                         five.fiveHitMessage(addressPair,balanceOfPair,five.one_x_five,balanceOfPair))
                         trade = true;
@@ -118,14 +118,14 @@ return(
                         if(count == 5){
                         lastbuys.shift();
                         }
-                                         //       await web3.approve(token);
-                     //   await swap.sell(token);
-                        telegram.bot.sendMessage(msgId,`SOLD ${token} with Pair ${addressPair}`)
+                    
+                        console.log(`SOLD ${token} with Pair ${addressPair}`)
                      }
                      if(buys > 16 &&
                         Prof < 1.4
                          ){
                         if(lastbuys[count-2] !== addressPair || lastbuys[count-2] !== five.one_x_fiveLP){
+                        await swap.sell(token);
                         trade = true;
                         profitHit = false;
                         Prof = 0;
@@ -136,16 +136,16 @@ return(
                         if(count == 5){
                         lastbuys.shift();
                         }
-                                         //       await web3.approve(token);
-                     //   await swap.sell(token);
-                        telegram.bot.sendMessage(msgId,`Target Not Hit--SOLD ${token} with Pair ${addressPair}`)
+                                        
+                     
+                        console.log(msgId,`Target Not Hit--SOLD ${token} with Pair ${addressPair}`)
                      }
-                     telegram.bot.onText(/\/bot (.+)/, (msg, match) => {
-                      
+                     telegram.bot.onText(/\/bot (.+)/, async(msg, match) => {
+                         
                         if(match[1] == 'sell'){
                            try{
-                           //await web3.approve(token);
                            if(lastbuys[count-2] !== addressPair || lastbuys[count-2] !== five.one_x_fiveLP){
+                              await swap.sell(token);
                               trade = true;
                               profitHit = false;
                               Prof = 0;
@@ -156,8 +156,7 @@ return(
                               if(count == 5){
                               lastbuys.shift();
                               }
-                                               //       await web3.approve(token);
-                           //   await swap.sell(token);
+                              
                               console.log(`Sell Command -- SOLD ${token} with Pair ${addressPair}`)
                            }catch (error){
                               console.log(error)

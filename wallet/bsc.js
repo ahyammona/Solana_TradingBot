@@ -53,12 +53,7 @@ const ERC20_ABI = [
     "event Transfer(address indexed from, address indexed to, uint amount)"
 ]
 
-const approve = async(token) => {
-    const erc20 = new ethers.Contract(token,ERC20_ABI,approval);
-  
-    const amountIn = await erc20.balanceOf(addresses.me);
-    await erc20.approve(addresses.router,amountIn + amountIn);
-}
+
 const erc20 = new ethers.Contract(addresses.WBNB,ERC20_ABI,provider);
  
-module.exports = {factory,  erc20,approve}
+module.exports = {factory,  erc20}

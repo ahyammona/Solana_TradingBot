@@ -9,11 +9,11 @@ const addresses = {
     me: "0xF4b39FB6B4bC827fD34a79E8a1e048EF5b21Ba81"
 }
 
-const provider = new ethers.JsonRpcProvider("https://bsc.publicnode.com");
 //const provider = new ethers.SocketProvider("wss://bsc.publicnode.com");
 //const provider = new ethers.JsonRpcProvider("https://bsc-testnet.publicnode.com");
 //const provider = new ethers.JsonRpcProvider("https://rpc.ankr.com/bsc_testnet_chapel/47ceb5ecaf80725d3285c7fc84df4f4a0153c6718ea8542f0c702c975b255779");
 //mainnet
+const provider = new ethers.JsonRpcProvider("https://bsc.publicnode.com");
 //const provider = new ethers.JsonRpcProvider("https://bsc-dataseed.binance.org/")
 //const provider = new ethers.JsonRpcProvider("https://rpc.ankr.com/bsc")
 //const provider = new ethers.SocketProvider("wss://solitary-magical-shadow.bsc.quiknode.pro/0c3925605cc3b4ba232f826d940ad6f8f338ba54/")
@@ -28,7 +28,7 @@ const account = wallet.connect(provider)
 const router = new ethers.Contract(
     addresses.router,
     [
-        "function getAmountsOut(uint amountIn, address[] memory path) public view  returns (uint[] memory amounts)",
+        "function getAmountsOut(uint amountIn, address[] memory path) public view  returns (uint[] amounts)",
         "function swapExactETHForTokens(uint amountOutMin,address[] calldata path,address to,uint deadline) external payable returns (uint[] memory amounts)",
         "function swapExactTokensForETH(uint amountIn, uint amountOutMin, address[] calldata path, address to, uint deadline)external returns (uint[] memory amounts)"
     ],
@@ -39,7 +39,7 @@ const ERC20_ABI = [
     "function name() view returns(string)",
     "function symbol() view returns(string)",
     "function totalSupply() view returns(uint256)",
-    "function approve(address spender, uint amount) public returns(bool)",
+    "function approve(address spender, uint amount) returns(bool)",
     "function balanceOf(address) view returns(uint)",
     "function owner() view returns(addrss)",
     "event Transfer(address indexed from, address indexed to, uint amount)"
@@ -50,9 +50,11 @@ const ERC20_ABI = [
 // math for Big numbers in JS
 
 const buy = async (token) => {
-    const amountIn = ethers.utils.parseEther('0.02'); //ether is the measurement, not the coin
+    const amount = 0.02;
+    const amountIn = ethers.parseUnits(amount.toString(), 'ether'); //ether is the measurement, not the coin
     const amounts = await router.getAmountsOut(amountIn, [addresses.WBNB, token]);
-    const amountOutMin = amounts[1].sub(amounts[1].div(10)); // math for Big numbers in JS
+    const amountOutMin = Number(amounts[1]) - (Number(amounts[1]) / 10); // math for Big numbers in JS
+
 
 
     console.log(`
@@ -64,28 +66,20 @@ const buy = async (token) => {
     `);
 
     var options = {
-        gasPrice: ethers.utils.parseUnits('10','gwei'),
+        gasPrice: ethers.parseUnits('10','gwei'),
         gasLimit: 250000,
         value: amountIn
      };
    try{ 
     const transaction = await router.swapExactETHForTokens(
-        amountOutMin,
+        amountOutMin.toString(),
         [addresses.WBNB, token],
         addresses.me,
         Date.now() + 1000 * 60 * 5, //5 minutes
         options
     )
-   
-// Sign the transaction with the wallet
-   const signedTransaction = await wallet.signTransaction(transaction);
+    console.log(`Transaction Confirm: ${transaction.hash}`);
 
-// Send the transaction to the BSC network
-   const tx = await provider.sendTransaction(signedTransaction);
-
-// Wait for the transaction to be confirmed
-    const receipt = await tx.wait();
-    console.log('Transaction confirmed:', receipt.transactionHash);
   } catch (error) {
     if (error.code === -32000 && error.message === 'already known') {
       console.log('Transaction already known, ignoring error');
@@ -95,11 +89,12 @@ const buy = async (token) => {
   }
 };
 const sell = async (token) => {
-  const erc20 = new ethers.Contract(token,ERC20_ABI,account);
   
+  const erc20 = new ethers.Contract(token,ERC20_ABI,account);
   const amountIn = await erc20.balanceOf(addresses.me)
-  const amounts = await router.getAmountsOut(amountIn, [token, addresses.WBNB]);
-  const amountOutMin = amounts[1].sub(amounts[1].div(10)); // math for Big numbers in JS
+  await erc20.approve(addresses.router,amountIn + amountIn);
+  const amounts = await router.getAmountsOut(amountIn, [addresses.WBNB, token]);
+  const amountOutMin = Number(amounts[1]) - (Number(amounts[1]) / 10); // math for Big numbers in JS
 
 
   console.log(`
@@ -111,27 +106,19 @@ const sell = async (token) => {
   `);
   try{ 
   var options = {
-      gasPrice: ethers.utils.parseUnits('10','gwei'),
+      gasPrice: ethers.parseUnits('10','gwei'),
       gasLimit: 250000
    };
   const transaction = await router.swapExactTokensForETH(
-      amountIn,
-      amountOutMin,
+      amountIn.toString(),
+      0,
       [token, addresses.WBNB],
       addresses.me,
       Date.now() + 1000 * 60 * 5, //5 minutes
       options
   )
   
-// Sign the transaction with the wallet
-const signedTransaction = await wallet.signTransaction(transaction);
-
-// Send the transaction to the BSC network
-const tx = await provider.sendTransaction(signedTransaction);
-console.log(tx);
-// Wait for the transaction to be confirmed
-const receipt = await tx.wait();
-console.log('Transaction confirmed:', receipt.transactionHash); 
+  console.log(`Transaction Confirm: ${transaction.hash}`);
 } catch (error) {
   if (error.code === -32000 && error.message === 'already known') {
     console.log('Transaction already known, ignoring error');
