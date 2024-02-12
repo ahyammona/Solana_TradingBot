@@ -50,7 +50,7 @@ const ERC20_ABI = [
 // math for Big numbers in JS
 
 const buy = async (token) => {
-    const amount = 0.02;
+    const amount = 0.01;
     const amountIn = ethers.parseUnits(amount.toString(), 'ether'); //ether is the measurement, not the coin
     const amounts = await router.getAmountsOut(amountIn, [addresses.WBNB, token]);
     const amountOutMin = Number(amounts[1]) - (Number(amounts[1]) / 10); // math for Big numbers in JS
@@ -72,7 +72,7 @@ const buy = async (token) => {
      };
    try{ 
     const transaction = await router.swapExactETHForTokens(
-        amountOutMin.toString(),
+        BigInt(amountOutMin),
         [addresses.WBNB, token],
         addresses.me,
         Date.now() + 1000 * 60 * 5, //5 minutes
@@ -110,7 +110,7 @@ const sell = async (token) => {
       gasLimit: 250000
    };
   const transaction = await router.swapExactTokensForETH(
-      amountIn.toString(),
+      BigInt(amountIn),
       0,
       [token, addresses.WBNB],
       addresses.me,
