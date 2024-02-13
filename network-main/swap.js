@@ -49,7 +49,7 @@ const ERC20_ABI = [
 // math for Big numbers in JS
 
 const buy = async (token) => {
-    const amount = 0.01;
+    const amount = 0.01843;
     const amountIn = ethers.parseUnits(amount.toString(), 'ether'); //ether is the measurement, not the coin
     const amounts = await router.getAmountsOut(amountIn, [addresses.WBNB, token]);
     const amountOutMin = Number(amounts[1]) - (Number(amounts[1]) / 10); // math for Big numbers in JS
@@ -64,7 +64,7 @@ const buy = async (token) => {
      };
    try{ 
     const transaction = await router.swapExactETHForTokens(
-        BigInt(amountOutMin),
+        0,
         [addresses.WBNB, token],
         addresses.me,
         Date.now() + 1000 * 60 * 5, //5 minutes
@@ -86,17 +86,17 @@ const sell = async (token) => {
   const amountIn = await erc20.balanceOf(addresses.me)
   await erc20.approve(addresses.router,amountIn + amountIn);
   const amounts = await router.getAmountsOut(amountIn, [token,addresses.WBNB]);
-  const amountOutMin = BigInt(amounts[1])  - BigInt(amounts[1] / BigInt(100) * BigInt(15)); // math for Big numbers in JS
+  //const amountOutMin = BigInt(amounts[1])  - BigInt(amounts[1] / BigInt(100) * BigInt(15)); // math for Big numbers in JS
 
 
   try{ 
   var options = {
-      gasPrice: ethers.parseUnits('10','gwei'),
+      gasPrice: ethers.parseUnits('30','gwei'),
       gasLimit: 250000
    };
   const transaction = await router.swapExactTokensForETHSupportingFeeOnTransferTokens(
       BigInt(amountIn),
-      amountOutMin,
+      0,
       [token, addresses.WBNB],
       addresses.me,
       Date.now() + 1000 * 60 * 5, //5 minutes
