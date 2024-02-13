@@ -30,8 +30,7 @@ const router = new ethers.Contract(
     [
         "function getAmountsOut(uint amountIn, address[] memory path) public view  returns (uint[] amounts)",
         "function swapExactETHForTokens(uint amountOutMin,address[] calldata path,address to,uint deadline) external payable returns (uint[] memory amounts)",
-        "function swapExactTokensForETH(uint amountIn, uint amountOutMin, address[] calldata path, address to, uint deadline)external returns (uint[] memory amounts)"
-    ],
+        "function swapExactTokensForETHSupportingFeeOnTransferTokens(uint amountIn,uint amountOutMin,address[] calldata path,address to,uint deadline) external",    ],
     account
 );
 
@@ -57,14 +56,7 @@ const buy = async (token) => {
 
 
 
-    console.log(`
-    ~~~~~~~~~~~~~~~~~~~~
-    Buying new token
-    ~~~~~~~~~~~~~~~~~~~~
-    buyToken: ${amountIn.toString()} ${addresses.WBNB} (WBNB)
-    sellToken: ${amountOutMin.toString()} ${token}
-    `);
-
+ 
     var options = {
         gasPrice: ethers.parseUnits('10','gwei'),
         gasLimit: 250000,
@@ -93,25 +85,18 @@ const sell = async (token) => {
   const erc20 = new ethers.Contract(token,ERC20_ABI,account);
   const amountIn = await erc20.balanceOf(addresses.me)
   await erc20.approve(addresses.router,amountIn + amountIn);
-  const amounts = await router.getAmountsOut(amountIn, [addresses.WBNB, token]);
-  const amountOutMin = Number(amounts[1]) - (Number(amounts[1]) / 10); // math for Big numbers in JS
+  const amounts = await router.getAmountsOut(amountIn, [token,addresses.WBNB]);
+  const amountOutMin = BigInt(amounts[1])  - BigInt(amounts[1] / BigInt(100) * BigInt(15)); // math for Big numbers in JS
 
 
-  console.log(`
-  ~~~~~~~~~~~~~~~~~~~~
-  Selling new token
-  ~~~~~~~~~~~~~~~~~~~~
-  buyToken: ${amountIn.toString()} ${token} (WBNB)
-  sellToken: ${amountOutMin.toString()} ${addresses.WBNB}
-  `);
   try{ 
   var options = {
       gasPrice: ethers.parseUnits('10','gwei'),
       gasLimit: 250000
    };
-  const transaction = await router.swapExactTokensForETH(
+  const transaction = await router.swapExactTokensForETHSupportingFeeOnTransferTokens(
       BigInt(amountIn),
-      0,
+      amountOutMin,
       [token, addresses.WBNB],
       addresses.me,
       Date.now() + 1000 * 60 * 5, //5 minutes
@@ -127,5 +112,6 @@ const sell = async (token) => {
    }
  }
 };
+
 
 module.exports = {buy,sell};
