@@ -62,8 +62,7 @@ return(
                      if(lastbuys[count-2] == addressPair && lastbuys[count-2] == five.one_x_fiveLP){
                         console.log(`duplicated pair`);
                      }else{
-                       await swap.buy(token); 
-                        //await addons.add(addressPair);
+                      // await swap.buy(token); 
                         five.one_x_fiveLP = potentialTokens;
                         count = count + 1;
                         lastbuys.push(five.one_x_fiveLP);
@@ -105,7 +104,7 @@ return(
                          ){
                            
                         if(lastbuys[count-2] !== addressPair || lastbuys[count-2] !== five.one_x_fiveLP){
-                        await swap.sell(token);
+                      //  await swap.sell(token);
                         telegram.bot.sendMessage(msgId,
                         five.fiveHitMessage(addressPair,balanceOfPair,five.one_x_five,balanceOfPair))
                         trade = true;
@@ -125,7 +124,7 @@ return(
                         Prof < 1.4
                          ){
                         if(lastbuys[count-2] !== addressPair || lastbuys[count-2] !== five.one_x_fiveLP){
-                        await swap.sell(token);
+                        //await swap.sell(token);
                         trade = true;
                         profitHit = false;
                         Prof = 0;
@@ -145,7 +144,7 @@ return(
                         if(match[1] == 'sell'){
                            try{
                            if(lastbuys[count-2] !== addressPair || lastbuys[count-2] !== five.one_x_fiveLP){
-                              await swap.sell(token);
+                          //    await swap.sell(token);
                               trade = true;
                               profitHit = false;
                               Prof = 0;
