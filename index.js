@@ -1,25 +1,5 @@
-require('dotenv').config();
-const express = require("express");
-const bsc = require('./network-main/index-bsc');
-const arb = require('./network-main/index-eth');
-const lp = require("./oneX/five");
-const rug = require("./network-main/antirug");
-const app = express();
-const honey = require('./network-main/honeyPot');
-const port = 5001;
-app.use(express.json());
-const _token = bsc.token;
-const pair = lp.one_x_fiveLP;
+const sol = require('./network-main/index-sol');
 
 
-bsc.bscFactory();
-//arb.arbFactory();
-if(_token != null){
-rug.getPendingRemoveLiquidityTransactions(pair,_token);
-}else{
-    console.log(`token is null`);
-}
 
-
-app.listen(port, () => {
- }) 
+sol.solFactory();
