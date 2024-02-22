@@ -162,7 +162,7 @@ async function fetchRaydiumAccounts(txId, connection) {
         `)
    
         getChanges(vault,lpAccount);
-    }else{
+    }else if(initialLP > 0){
         target = 1.05;
         trade = false;
         initialBalance = initialLP;
