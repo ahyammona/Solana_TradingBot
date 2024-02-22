@@ -161,7 +161,7 @@ async function fetchRaydiumAccounts(txId, connection) {
         `)
    
         getChanges(vault,lpAccount);
-    }else if(initialLP > 20 && holder <=20){
+    }else if(initialLP >= 40 && holder <=20){
         target = 1.1;
         trade = false;
         initialBalance = initialLP;
@@ -228,11 +228,12 @@ const subscriptionID = transConnection.onAccountChange(
       console.log(`Profit ${profit}`);
       if(profit > target){ 
         bot.sendMessage(msgId,"Target hit " + profit)
-       }//else if (profit < 1) {
-      //   trade = true;
-      //   addr = null;
-      //   profit = null;
-      // }
+        trade = true;
+       }else if (profit < 1) {
+         trade = true;
+         addr = 0;
+         profit = 0;
+       }
      
     }
   )
