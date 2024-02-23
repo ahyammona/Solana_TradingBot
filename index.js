@@ -26,10 +26,14 @@ let credits = 0;
 const raydium = new PublicKey(RAYDIUM_PUBLIC_KEY);
 const RAv4 = new PublicKey(Raydium_Authority_PUBLIC_KEY);
 // Replace HTTP_URL & WSS_URL with QuickNode HTTPS and WSS Solana Mainnet endpoint
-const connection = new Connection(`https://solana-mainnet.core.chainstack.com/cdbbb84951b6f7f68ace54fcbe3cec88`, {   
-    wsEndpoint: `wss://solana-mainnet.core.chainstack.com/ws/cdbbb84951b6f7f68ace54fcbe3cec88 `,
+const connection = new Connection(`https://solana-mainnet.core.chainstack.com/9e57c777a55d4df5f94a71bcc098d71d `, {   
+    wsEndpoint: `wss://solana-mainnet.core.chainstack.com/ws/9e57c777a55d4df5f94a71bcc098d71d `,
     httpHeaders: {"x-session-hash": SESSION_HASH}
 });
+
+//https://solana-mainnet.g.alchemy.com/v2/ivbpOnYRAvSjoLJEpPNP910PYIcrtNrw
+//wss://solana-mainnet.g.alchemy.com/v2/ivbpOnYRAvSjoLJEpPNP910PYIcrtNrw
+//ivbpOnYRAvSjoLJEpPNP910PYIcrtNrw
 const solConnection = new Connection(`https://api.mainnet-beta.solana.com`,{
   wsEndpoint: `wss://api.mainnet-beta.solana.com`,
   httpHeaders: {"x-session-hash": SESSION_HASH}
@@ -37,7 +41,9 @@ const solConnection = new Connection(`https://api.mainnet-beta.solana.com`,{
 const transConnection = new Connection(`https://cool-alien-slug.solana-mainnet.quiknode.pro/3f918c9a24e56e0ea64d765e4cc98305bc218991`)
 const tokenConnection = new Connection(`https://mainnet.helius-rpc.com/?api-key=2313f341-97ba-4d78-88b2-63b3fe80154c
 `);
+const buysConnection = new Connection(`https://rpc.ankr.com/solana`)
 
+//https://rpc.ankr.com/solana
 //https://solana-mainnet.core.chainstack.com
 //wss://solana-mainnet.core.chainstack.com/ws
 //https://cool-alien-slug.solana-mainnet.quiknode.pro/3f918c9a24e56e0ea64d765e4cc98305bc218991`, {
@@ -54,22 +60,25 @@ async function main(connection, programAddress) {
     connection.onLogs(
         programAddress,
         ({ logs, err, signature }) => {
-          if(trade == false){
-          }else{
+         if(trade == false){
+         }else{
             if (err) return;
             if (logs && logs.some(log => log.includes("initialize2"))) {
                 console.log("Signature for 'initialize2':", signature);
                 fetchRaydiumAccounts(signature, connection);    
             }
-          }
+          }  
         },
         "finalized"
+      
     );
+      
       
 }
 
 // Parse transaction and filter data
 async function fetchRaydiumAccounts(txId, connection) {
+
     const tx = await connection.getParsedTransaction(
         txId,
         {
@@ -93,7 +102,6 @@ async function fetchRaydiumAccounts(txId, connection) {
     const tokenAAccount = accounts[tokenAIndex];
     const tokenBAccount = accounts[tokenBIndex];
     const holder = await getTokenHolderCount(tokenAAccount);
-    pairAddress = lpAccount; 
     const displayData = [
         { "Token": "LP", "Account Public Key" : lpAccount.toBase58()},
         { "Token": "A", "Account Public Key": tokenAAccount.toBase58() },
@@ -101,8 +109,8 @@ async function fetchRaydiumAccounts(txId, connection) {
     ];
     const [initialLP, vault] = await getPoolInfo(lpAccount);
     const buys = await getBuys(vault,lpAccount)
-
     console.log("New LP Found");
+    console.log("buys :"+ buys)
     console.log(generateExplorerUrl(txId));
     console.table(displayData);
     console.log("Sol bal: " + initialLP);
@@ -114,15 +122,14 @@ async function fetchRaydiumAccounts(txId, connection) {
    Potential Buy!!!!
    ~~~~~~~~~~~~~~~~~~
      Link: ${generateExplorerUrl(txId)}   
-     
+     buys : ${buys}
      Token : ${tokenAAccount}
       SOl:     ${tokenBAccount}
       LP:      ${lpAccount}
       Sol Bal:   ${initialLP}
       Token Holders: ${holder} 
     `)
-
-    if(buys >= 1 && initialLP % 1 === 0 && initialLP >= 1){
+    if( initialLP % 1 === 0 && initialLP >= 1 && initialLP <= 1000){
      target = 1.05;
      trade = false;
      initialBalance = initialLP;
@@ -142,27 +149,7 @@ async function fetchRaydiumAccounts(txId, connection) {
      `)
 
      getChanges(vault,lpAccount);
-    }else if(initialLP >= 1 && holder <= 30){
-        target = 1.05;
-        trade = false;
-        initialBalance = initialLP;
-        bot.sendMessage(msgId,`
-        💹💹  
-       ~~~~~~~~~~~~~~~~~~
-       Token Buy Info!!!!
-       ~~~~~~~~~~~~~~~~~~
-         Link: ${generateExplorerUrl(txId)}   
-         
-         Token : ${tokenAAccount}
-          SOl:     ${tokenBAccount}
-          LP:      ${lpAccount}
-          Sol Bal:   ${initialLP}
-          Token Holders: ${holder}
-          Target : ${target} 
-        `)
-   
-        getChanges(vault,lpAccount);
-    }else if(initialLP > 1){
+    }else if( initialLP >= 1 && holder <= 30){
         target = 1.05;
         trade = false;
         initialBalance = initialLP;
@@ -183,8 +170,7 @@ async function fetchRaydiumAccounts(txId, connection) {
    
         getChanges(vault,lpAccount);
     }
-    
-}
+  }
 
 //tools for fetching information for the main contract
 
@@ -219,7 +205,7 @@ async function getPoolInfo(lpToken){
 async function getBuys(address, lp) {
 const addr = new PublicKey(address);
 let buys = 0
-const subscriptionID = solConnection.onAccountChange(
+const subscriptionID = buysConnection.onAccountChange(
     addr,
     async(updatedAccountInfo, context) => {
      buys = buys + 1;
@@ -229,28 +215,28 @@ const subscriptionID = solConnection.onAccountChange(
  }
 
 async function getChanges(address, lp){
-const addr = new PublicKey(address);
-
+let addr = new PublicKey(address);
+let hit = false;
 if (trade == true){
 }else{
 const subscriptionID = transConnection.onAccountChange(
     addr,
     async(updatedAccountInfo, context) => {
+      if(hit == true){
+      }else{
       const solBal = updatedAccountInfo.lamports/1000000000
-      const profit = Number(solBal).toFixed(2) / Number(initialBalance).toFixed(2); 
+      let profit = Number(solBal).toFixed(2) / Number(initialBalance).toFixed(2); 
       console.log(`${addr} of ${lp} Updated Sol Bal: ` + Number(solBal).toFixed(2));
       console.log(`Profit ${profit}`);
-      if(profit > target){ 
-        bot.sendMessage(msgId,"Target hit " + profit)
-         addr = 0;
-        profit = 0;
+     if(profit > target){ 
+       bot.sendMessage(msgId,"Target hit " + profit); 
+       trade = true;
+       hit = true;
+    } else if (hit == false && profit < 0.97 && profit > 0.5) { 
+        bot.sendMessage(msgId,"Target Not hit " + profit); 
         trade = true;
-       }else if (profit < 1) {
-         addr = 0;
-         profit = 0;
-         trade = true;
-       }
-     
+      }
+    }
     }
   )
  }
@@ -285,7 +271,6 @@ async function getTokenHolderCount(addr) {
  function generateExplorerUrl(txId) {
     return `https://solscan.io/tx/${txId}`;
  }
-
  if(trade == true){
-   main(connection, raydium).catch(console.error);
+  main(connection, raydium).catch(console.error);
  }
