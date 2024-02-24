@@ -14,6 +14,7 @@ const msgId = -1002075281954;
 let initialBalance;
 let trade = true;
 let target;
+let hit = false;
 let buys;
 
 const SOLANA = "So11111111111111111111111111111111111111112"
@@ -60,25 +61,24 @@ async function main(connection, programAddress) {
     connection.onLogs(
         programAddress,
         ({ logs, err, signature }) => {
-         if(trade == false){
-         }else{
             if (err) return;
             if (logs && logs.some(log => log.includes("initialize2"))) {
                 console.log("Signature for 'initialize2':", signature);
                 fetchRaydiumAccounts(signature, connection);    
             }
-          }  
+          
         },
         "finalized"
-      
+        
     );
-      
+
       
 }
 
 // Parse transaction and filter data
 async function fetchRaydiumAccounts(txId, connection) {
-
+   
+    
     const tx = await connection.getParsedTransaction(
         txId,
         {
@@ -94,7 +94,8 @@ async function fetchRaydiumAccounts(txId, connection) {
         console.log("No accounts found in the transaction.");
         return;
     }
-    
+    if(trade == false){
+    }else{
     const lp = 4;
     const tokenAIndex = 8;
     const tokenBIndex = 9;
@@ -129,6 +130,7 @@ async function fetchRaydiumAccounts(txId, connection) {
       Sol Bal:   ${initialLP}
       Token Holders: ${holder} 
     `)
+    
     if( initialLP % 1 === 0 && initialLP >= 1 && initialLP <= 1000){
      target = 1.05;
      trade = false;
@@ -171,7 +173,7 @@ async function fetchRaydiumAccounts(txId, connection) {
         getChanges(vault,lpAccount);
     }
   }
-
+}
 //tools for fetching information for the main contract
 
 
@@ -216,7 +218,7 @@ const subscriptionID = buysConnection.onAccountChange(
 
 async function getChanges(address, lp){
 let addr = new PublicKey(address);
-let hit = false;
+hit = false;
 if (trade == true){
 }else{
 const subscriptionID = transConnection.onAccountChange(
@@ -232,9 +234,12 @@ const subscriptionID = transConnection.onAccountChange(
        bot.sendMessage(msgId,"Target hit " + profit); 
        trade = true;
        hit = true;
-    } else if (hit == false && profit < 0.97 && profit > 0.5) { 
+       main(connection, raydium).catch(console.error);
+    } else if (profit < 0.97 && profit > 0.0) { 
         bot.sendMessage(msgId,"Target Not hit " + profit); 
         trade = true;
+        main(connection, raydium).catch(console.error);
+        hit = true;
       }
     }
     }
@@ -271,6 +276,5 @@ async function getTokenHolderCount(addr) {
  function generateExplorerUrl(txId) {
     return `https://solscan.io/tx/${txId}`;
  }
- if(trade == true){
-  main(connection, raydium).catch(console.error);
- }
+ 
+main(connection, raydium).catch(console.error);
