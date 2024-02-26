@@ -144,18 +144,13 @@ async function fetchRaydiumAccounts(txId) {
     `)
 
     if(initialLP % 1 === 0
-     || initialLP === 3.5 
-     || initialLP === 10.5
-     || initialLP === 5.5
-     || initialLP === 6.5 
-     || initialLP === 8.5
-     || initialLP === 1.5
-     &&  initialLP >= 1 
-     && initialLP <= 600){
+      &&  initialLP >= 1 
+      && initialLP <= 10
+     ){
      const pairAddress = lpAccount;
      const vaultAddress = vault; 
      target = 1.05;
-     picked = true;
+     hit = false;
      initialBalance = initialLP;
      bot.sendMessage(msgId,`
      💹💹  
@@ -173,11 +168,6 @@ async function fetchRaydiumAccounts(txId) {
        Whole
      `)
      getChanges(vaultAddress,pairAddress);
-    
-    }else if(holder < 15){
-      const pair = lpAccount;
-      const vault = vault; 
-      getChanges(pair,vault)
     }else{
       trade = true
       main(connection, raydium).catch(console.error);
@@ -220,7 +210,9 @@ async function getPoolInfo(lpToken){
 
 async function getChanges(address, lp){
     let addr = new PublicKey(address);
-    hit = 0;
+    hit = false;
+    if(hit == true){
+    }else{
     const subscriptionID = transConnection.onAccountChange(
     addr,
     async(updatedAccountInfo, context) => {
@@ -233,20 +225,23 @@ async function getChanges(address, lp){
        Liquidity Pair: ${lp} 
        Target hit  ${profit}
        `); 
-       trade = true
-       main(connection, raydium).catch(console.error);
        addr = 0;
        profit = 0;
-    } else if (profit < 0.97 && profit > 0.0) { 
+       trade = true
+       hit = true;
+       main(connection, raydium).catch(console.error);
+    } else if (profit < 0.8 && profit > 0.0) { 
         bot.sendMessage(msgId,"Target Not hit " + profit); 
         trade = true
         main(connection, raydium).catch(console.error);
-        hit += 1;
+        hit == true;
         addr = 0;
         profit = 0;
       }
+    
     }
   )
+    }
 }
 
 
