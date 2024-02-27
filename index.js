@@ -208,7 +208,6 @@ async function getPoolInfo(lpToken){
 
 async function getChanges(address, lp){
     let addr = new PublicKey(address);
-    bought = false;
    
     const subscriptionID = transConnection.onAccountChange(
     addr,
