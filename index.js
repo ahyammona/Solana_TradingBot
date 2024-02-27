@@ -17,7 +17,7 @@ let trade = true;
 let target;
 let pairAddress;
 let hit = false;
-let buys;
+let bought = false;
 
 const SOLANA = "So11111111111111111111111111111111111111112"
 const RAYDIUM_PUBLIC_KEY = "675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8";
@@ -29,8 +29,8 @@ let credits = 0;
 const raydium = new PublicKey(RAYDIUM_PUBLIC_KEY);
 const RAv4 = new PublicKey(Raydium_Authority_PUBLIC_KEY);
 // Replace HTTP_URL & WSS_URL with QuickNode HTTPS and WSS Solana Mainnet endpoint
-const connection = new Connection(`https://solana-mainnet.core.chainstack.com/9e67623684c7a9d60fd330d767b7df59`, {   
-    wsEndpoint: `wss://solana-mainnet.core.chainstack.com/ws/9e67623684c7a9d60fd330d767b7df59`,
+const connection = new Connection(`https://solana-mainnet.core.chainstack.com/55fbc4d0052679cb00a1a8dee0a6e4e3`, {   
+    wsEndpoint: `wss://solana-mainnet.core.chainstack.com/ws/55fbc4d0052679cb00a1a8dee0a6e4e3`,
     httpHeaders: {"x-session-hash": SESSION_HASH}
 });
 const mainConnection = new Connection(`https://solana-mainnet.g.alchemy.com/v2/ivbpOnYRAvSjoLJEpPNP910PYIcrtNrw`, {   
@@ -109,10 +109,10 @@ async function fetchRaydiumAccounts(txId) {
     const lpAccount = accounts[lp];
     const tokenAAccount = accounts[tokenAIndex];
     const tokenBAccount = accounts[tokenBIndex];
-    const holder = await getTokenHolderCount(tokenAAccount);
+   // const holder = await getTokenHolderCount(tokenAAccount);
     const [initialLP, vault] = await getPoolInfo(lpAccount);
     if(
-      holder > 15
+      initialLP % 1 !== 0
       ){
       trade = true
       main(connection, raydium).catch(console.error);
@@ -140,7 +140,6 @@ async function fetchRaydiumAccounts(txId) {
       SOl:     ${tokenBAccount}
       LP:      ${lpAccount}
       Sol Bal:   ${initialLP}
-      Token Holders: ${holder} 
     `)
 
     if(initialLP % 1 === 0
@@ -149,7 +148,7 @@ async function fetchRaydiumAccounts(txId) {
      ){
      const pairAddress = lpAccount;
      const vaultAddress = vault; 
-     target = 1.05;
+     target = 1.2;
      hit = false;
      initialBalance = initialLP;
      bot.sendMessage(msgId,`
@@ -163,7 +162,6 @@ async function fetchRaydiumAccounts(txId) {
        SOl:     ${tokenBAccount}
        LP:      ${lpAccount}
        Sol Bal:   ${initialLP}
-       Token Holders: ${holder}
        Target : ${target}
        Whole
      `)
@@ -210,39 +208,57 @@ async function getPoolInfo(lpToken){
 
 async function getChanges(address, lp){
     let addr = new PublicKey(address);
-    hit = false;
-    if(hit == true){
-    }else{
+   
     const subscriptionID = transConnection.onAccountChange(
     addr,
     async(updatedAccountInfo, context) => {
+      if(bought == true){
+      }else{
+        console.log("bought Here")
+        bot.sendMessage(msgId,"Bought here");
+        bought = true;
+      }
+      if(hit == true){
+      }else{
+      const Bal = updatedAccountInfo.lamports/1000000000
+      let prof = Number(Bal).toFixed(2) / Number(initialBalance).toFixed(2); 
+      console.log(`${addr} of ${lp} Updated Sol Bal: ` + Number(Bal).toFixed(2));
+      console.log(`Profit ${prof}`);
+      bot.sendMessage(msgId,` 
+      Liquidity Pair: ${lp} 
+       Profit hit :  ${prof}
+      `); 
+      }
+      if(hit == true){
+      }else{
       const solBal = updatedAccountInfo.lamports/1000000000
       let profit = Number(solBal).toFixed(2) / Number(initialBalance).toFixed(2); 
-      console.log(`${addr} of ${lp} Updated Sol Bal: ` + Number(solBal).toFixed(2));
-      console.log(`Profit ${profit} and ${hit}`);
      if(profit > target){ 
        bot.sendMessage(msgId,` 
        Liquidity Pair: ${lp} 
        Target hit  ${profit}
        `); 
+       hit = true;
        addr = 0;
        profit = 0;
        trade = true
-       hit = true;
        main(connection, raydium).catch(console.error);
-    } else if (profit < 0.8 && profit > 0.0) { 
-        bot.sendMessage(msgId,"Target Not hit " + profit); 
+       bought = false;
+    } else if (hit == false && profit < 0.8 && profit > 0.0) { 
+        bot.sendMessage(msgId,`Liquidity Pair: ${lp} 
+       Target Not hit  ${profit} `); 
         trade = true
         main(connection, raydium).catch(console.error);
         hit == true;
         addr = 0;
         profit = 0;
+        bought = false;
       }
-    
+    }
     }
   )
     }
-}
+
 
 
 async function getTokenHolderCount(addr) {
