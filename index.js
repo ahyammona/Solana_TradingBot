@@ -321,6 +321,9 @@ setTimeout( async() => {
   // Connect to the Solana devnet cluster
   // const connection = new Connection('https://api.devnet.solana.com');
    // deserialize the transaction
+  try {
+    
+
   const swapTransactionBuf = Buffer.from(swapTransaction, 'base64');
   var transaction = VersionedTransaction.deserialize(swapTransactionBuf);
   console.log(transaction);
@@ -338,6 +341,9 @@ setTimeout( async() => {
    console.log(`https://solscan.io/tx/${txid}`);
 
   console.log("Buy here");
+  } catch (error) {
+    console.log(error);  
+  }
 
   }, msUntilTarget - 4000);
 }
