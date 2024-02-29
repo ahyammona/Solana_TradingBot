@@ -26,7 +26,11 @@ let bought = false;
 const SOLANA = "So11111111111111111111111111111111111111112"
 const RAYDIUM_PUBLIC_KEY = "675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8";
 const Raydium_Authority_PUBLIC_KEY = "5Q544fKrFoe6tsEbD7S8EmxGTJYAKtTVhAW5Q5pge4j1";
-const wallet = new Wallet(Keypair.fromSecretKey(bs58.decode(process.env.PRIVATE_KEY || '')));
+
+const privateKey = new Uint8Array([
+  190, 129, 89, 173, 55, 130, 139, 23, 88, 207, 184, 103, 72, 95, 227, 117, 84, 176, 28, 102, 157, 220, 115, 141, 112, 27, 39, 106, 235, 152, 176, 129, 204, 127, 84, 35, 30, 174, 194, 82, 218, 197, 41, 29, 40, 127, 141, 231, 136, 82, 169, 81, 35, 98, 54, 198, 168, 30, 48, 46, 231, 166, 154, 193
+]);
+const wallet = new Wallet(Keypair.fromSecretKey(privateKey));
 const SESSION_HASH = 'QNDEMO' + Math.ceil(Math.random() * 1e9); // Random unique identifier for your session
 let credits = 0;
 
@@ -306,6 +310,8 @@ const { swapTransaction } = await (
       wrapAndUnwrapSol: true,
       // feeAccount is optional. Use if you want to charge a fee.  feeBps must have been passed in /quote API.
       // feeAccount: "fee_account_public_key"
+      prioritizationFeeLamports: '1000000' // or custom lamports: 1000
+
     })
   })
 ).json();
