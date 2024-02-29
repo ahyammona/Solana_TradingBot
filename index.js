@@ -118,7 +118,13 @@ async function fetchRaydiumAccounts(txId) {
     const tokenAAccount = accounts[tokenAIndex];
     const tokenBAccount = accounts[tokenBIndex];
    // const holder = await getTokenHolderCount(tokenAAccount);
-    const [initialLP, vault] = await getPoolInfo(lpAccount);
+   
+    const displayData = [
+        { "Token": "LP", "Account Public Key" : lpAccount.toBase58()},
+        { "Token": "A", "Account Public Key": tokenAAccount.toBase58() },
+        { "Token": "B", "Account Public Key": tokenBAccount.toBase58() }
+    ];
+     const [initialLP, vault,startTime] = await getPoolInfo(lpAccount);
    
     if(
       initialLP % 1 !== 0
@@ -126,12 +132,6 @@ async function fetchRaydiumAccounts(txId) {
       trade = true
       main(connection, raydium).catch(console.error);
     }else{
-    const displayData = [
-        { "Token": "LP", "Account Public Key" : lpAccount.toBase58()},
-        { "Token": "A", "Account Public Key": tokenAAccount.toBase58() },
-        { "Token": "B", "Account Public Key": tokenBAccount.toBase58() }
-    ];
-    const startTime = await getTime(lpAccount);
     const now = new Date();
     const targetTime = new Date(startTime.getFullYear(), startTime.getMonth(), startTime.getDate(), startTime.getHours(), startTime.getMinutes(), startTime.getSeconds(),startTime.getMilliseconds());
     const timeDiff = targetTime - now;
@@ -206,6 +206,8 @@ async function getPoolInfo(lpToken){
     if (!info) return;
     const poolState = LIQUIDITY_STATE_LAYOUT_V4.decode(info.data);
 
+     const startTime =  poolState.poolOpenTime
+     const startDate = new Date(startTime * 1000);  
    
       if(SOLANA == poolState.quoteMint){
          mainCheck = await solConnection.getTokenAccountBalance(
@@ -221,21 +223,21 @@ async function getPoolInfo(lpToken){
     
       const denominator = new BN(10).pow(poolState.baseDecimal);
 
-    return [mainCheck.value.uiAmount, mainAddress];
+    return [mainCheck.value.uiAmount, mainAddress,startDate];
 }
 
-async function getTime(lpToken){
-  const pair = new PublicKey(lpToken);
+// async function getTime(lpToken){
+//   const pair = new PublicKey(lpToken);
     
-  const info = await tokenConnection.getAccountInfo(pair);
+//   const info = await tokenConnection.getAccountInfo(pair);
    
-  if (!info) return;
-  const poolState = LIQUIDITY_STATE_LAYOUT_V4.decode(info.data);
+//   if (!info) return;
+//   const poolState = LIQUIDITY_STATE_LAYOUT_V4.decode(info.data);
 
-  const startTime =  poolState.poolOpenTime
-  const startDate = new Date(startTime * 1000);
-   return startDate;
-}
+//   const startTime =  poolState.poolOpenTime
+//   const startDate = new Date(startTime * 1000);
+//    return startDate;
+// }
 
 async function getChanges(address, lp){
     let addr = new PublicKey(address);
@@ -285,7 +287,7 @@ async function getChanges(address, lp){
     }
 async function orderBuys(msUntilTarget,outputMint ){
 // Swapping SOL to USDC with input 0.1 SOL and 0.5% slippage
- const amount = 100000000;
+ const amount = 100000;
  const quoteResponse = await (
    await fetch(`https://quote-api.jup.ag/v6/quote?inputMint=So11111111111111111111111111111111111111112\
   &outputMint=${outputMint}\
