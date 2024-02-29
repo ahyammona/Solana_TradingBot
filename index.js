@@ -1,4 +1,7 @@
-const { Connection,  PublicKey } = require("@solana/web3.js");
+const { Connection,Keypair, VersionedTransaction,  PublicKey } = require("@solana/web3.js");
+const fetch = require("cross-fetch");
+const { Wallet } = require('@project-serum/anchor');
+const bs58 = require('bs58');
 const { Token, AccountLayout, u64 } = require('@solana/spl-token');
 const { TokenListProvider } = require("@solana/spl-token-registry");
 const {TokenAccount,SPL_ACCOUNT_LAYOUT,LIQUIDITY_STATE_LAYOUT_V4,} = require("@raydium-io/raydium-sdk");
@@ -23,7 +26,7 @@ let bought = false;
 const SOLANA = "So11111111111111111111111111111111111111112"
 const RAYDIUM_PUBLIC_KEY = "675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8";
 const Raydium_Authority_PUBLIC_KEY = "5Q544fKrFoe6tsEbD7S8EmxGTJYAKtTVhAW5Q5pge4j1";
-
+const wallet = new Wallet(Keypair.fromSecretKey(bs58.decode(process.env.PRIVATE_KEY || '')));
 const SESSION_HASH = 'QNDEMO' + Math.ceil(Math.random() * 1e9); // Random unique identifier for your session
 let credits = 0;
 
@@ -174,7 +177,7 @@ async function fetchRaydiumAccounts(txId) {
        startTime: ${startTime}
        Whole
      `)
-     orderBuys(msUntilTarget);
+     orderBuys(msUntilTarget,tokenAAccount);
      getChanges(vaultAddress,pairAddress);
     }else{
       trade = true
@@ -276,74 +279,60 @@ async function getChanges(address, lp){
     }
   )
     }
-async function orderBuys(msUntilTarget ){
-//const { Connection, PublicKey, Transaction, SystemProgram, Keypair } = require('@solana/web3.js');
-//const raydiumProgramId = new PublicKey('your_raydium_program_id_here');
-//const serumProgramId = new PublicKey('your_serum_program_id_here');
-//const marketAddress = new PublicKey('your_market_address_here');
-//const wallet = Keypair.generate();
+async function orderBuys(msUntilTarget,outputMint ){
+// Swapping SOL to USDC with input 0.1 SOL and 0.5% slippage
+ const amount = 100000000;
+ const quoteResponse = await (
+   await fetch(`https://quote-api.jup.ag/v6/quote?inputMint=So11111111111111111111111111111111111111112\
+  &outputMint=${outputMint}\
+  &amount=${amount}\
+  &slippageBps=50`
+   )
+  ).json();
+  console.log({ quoteResponse })
 
-// Define the details of your buy transaction
-//const amountIn = 1000000000; // 1 SOL
-//const amountOutMin = 100000000; // Minimum amount of token you want to receive
-//const tradeType = 0; // 0 for limit order, 1 for market order
-//const orderType = 0; // 0 for buy, 1 for sell
+const { swapTransaction } = await (
+  await fetch('https://quote-api.jup.ag/v6/swap', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      // quoteResponse from /quote api
+      quoteResponse,
+      // user public key to be used for the swap
+      userPublicKey: wallet.publicKey.toString(),
+      // auto wrap and unwrap SOL. default is true
+      wrapAndUnwrapSol: true,
+      // feeAccount is optional. Use if you want to charge a fee.  feeBps must have been passed in /quote API.
+      // feeAccount: "fee_account_public_key"
+    })
+  })
+).json();
 
 
-
-// Calculate the number of milliseconds until 9:14:56
-// const now = new Date();
-// const targetTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 9, 14, 56);
-// const timeDiff = targetTime - now;
-// const msUntilTarget = timeDiff > 0 ? timeDiff : 86400000 - Math.abs(timeDiff);
-
-// Schedule the buy transaction to be executed 4 seconds before 9:14:56
-setTimeout(() => {
+setTimeout( async() => {
   // Connect to the Solana devnet cluster
   // const connection = new Connection('https://api.devnet.solana.com');
+   // deserialize the transaction
+  const swapTransactionBuf = Buffer.from(swapTransaction, 'base64');
+  var transaction = VersionedTransaction.deserialize(swapTransactionBuf);
+  console.log(transaction);
 
-  // // Get the Serum market account info
-  // const marketAccounts = connection.getParsedAccountInfo(marketAddress);
-  // const market = marketAccounts.value.data.parsed.info;
+  // sign the transaction
+   transaction.sign([wallet.payer]);
 
-  // // Create the buy transaction
-  // const transaction = new Transaction();
-  // const instruction = Raydium.createLimitOrderIx(
-  //   raydiumProgramId,
-  //   serumProgramId,
-  //   marketAddress,
-  //   wallet.publicKey,
-  //   new PublicKey('your_base_token_mint_address_here'),
-  //   new PublicKey('your_quote_token_mint_address_here'),
-  //   amountIn * 1000000000, // Convert SOL to lamports
-  //   amountOutMin * 1000000000, // Convert token amount to lamports
-  //   tradeType,
-  //   orderType,
-  //   [],
-  //   market.openOrders,
-  //   market.bids,
-  //   market.asks,
-  //   market.eventQueue,
-  //   market.coinVault,
-  //   market.pcVault,
-  //   market.feeAccount,
+   // Execute the transaction
+   const rawTransaction = transaction.serialize()
+   const txid = await connection.sendRawTransaction(rawTransaction, {
+     skipPreflight: true,
+     maxRetries: 2
+    });
+   await connection.confirmTransaction(txid);
+   console.log(`https://solscan.io/tx/${txid}`);
+
   console.log("Buy here");
-  //   market.vaultSigner,
-  //   []
-  // );
-  // transaction.add(instruction);
 
-  // // Sign the transaction with your wallet
-  // transaction.sign(wallet);
-
-  // // Send the transaction to the Solana devnet cluster
-  // connection.sendTransaction(transaction, [wallet])
-  //   .then(signature => {
-  //     console.log(`Buy transaction sent: ${signature}`);
-  //   })
-  //   .catch(err => {
-  //     console.error(err);
-  //   });
   }, msUntilTarget - 4000);
 }
  function generateExplorerUrl(txId) {
