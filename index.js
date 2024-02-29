@@ -1,4 +1,5 @@
-const { Connection, Token,  PublicKey } = require("@solana/web3.js");
+const { Connection,  PublicKey } = require("@solana/web3.js");
+const { Token, AccountLayout, u64 } = require('@solana/spl-token');
 const { TokenListProvider } = require("@solana/spl-token-registry");
 const {TokenAccount,SPL_ACCOUNT_LAYOUT,LIQUIDITY_STATE_LAYOUT_V4,} = require("@raydium-io/raydium-sdk");
 const BN = require('bn.js');
@@ -29,8 +30,8 @@ let credits = 0;
 const raydium = new PublicKey(RAYDIUM_PUBLIC_KEY);
 const RAv4 = new PublicKey(Raydium_Authority_PUBLIC_KEY);
 // Replace HTTP_URL & WSS_URL with QuickNode HTTPS and WSS Solana Mainnet endpoint
-const connection = new Connection(`https://solana-mainnet.core.chainstack.com/55fbc4d0052679cb00a1a8dee0a6e4e3`, {   
-    wsEndpoint: `wss://solana-mainnet.core.chainstack.com/ws/55fbc4d0052679cb00a1a8dee0a6e4e3`,
+const connection = new Connection(`https://solana-mainnet.core.chainstack.com/2b9789b958c420270f3e09b3fac2d299`, {   
+    wsEndpoint: `wss://solana-mainnet.core.chainstack.com/ws/2b9789b958c420270f3e09b3fac2d299`,
     httpHeaders: {"x-session-hash": SESSION_HASH}
 });
 const mainConnection = new Connection(`https://solana-mainnet.g.alchemy.com/v2/ivbpOnYRAvSjoLJEpPNP910PYIcrtNrw`, {   
@@ -111,6 +112,7 @@ async function fetchRaydiumAccounts(txId) {
     const tokenBAccount = accounts[tokenBIndex];
    // const holder = await getTokenHolderCount(tokenAAccount);
     const [initialLP, vault] = await getPoolInfo(lpAccount);
+   
     if(
       initialLP % 1 !== 0
       ){
@@ -122,6 +124,11 @@ async function fetchRaydiumAccounts(txId) {
         { "Token": "A", "Account Public Key": tokenAAccount.toBase58() },
         { "Token": "B", "Account Public Key": tokenBAccount.toBase58() }
     ];
+    const startTime = await getTime(lpAccount);
+    const now = new Date();
+    const targetTime = new Date(startTime.getFullYear(), startTime.getMonth(), startTime.getDate(), startTime.getHours(), startTime.getMinutes(), startTime.getSeconds(),startTime.getMilliseconds());
+    const timeDiff = targetTime - now;
+    const msUntilTarget = timeDiff > 0 ? timeDiff : 86400000 - Math.abs(timeDiff);
     console.log("New LP Found");
     console.log(generateExplorerUrl(txId));
     console.table(displayData);
@@ -129,7 +136,7 @@ async function fetchRaydiumAccounts(txId) {
     console.log("Sol bal: " + initialLP);
     console.log("Sol Vault: " + vault);
     console.log("Total QuickNode Credits Used in this session:", credits);
-   
+  
     bot.sendMessage(msgId,`
     💹💹  
    ~~~~~~~~~~~~~~~~~~
@@ -140,8 +147,9 @@ async function fetchRaydiumAccounts(txId) {
       SOl:     ${tokenBAccount}
       LP:      ${lpAccount}
       Sol Bal:   ${initialLP}
+      startTime: ${startTime}
     `)
-
+    
     if(initialLP % 1 === 0
       &&  initialLP >= 1 
       && initialLP <= 10
@@ -163,8 +171,10 @@ async function fetchRaydiumAccounts(txId) {
        LP:      ${lpAccount}
        Sol Bal:   ${initialLP}
        Target : ${target}
+       startTime: ${startTime}
        Whole
      `)
+     orderBuys(msUntilTarget);
      getChanges(vaultAddress,pairAddress);
     }else{
       trade = true
@@ -188,6 +198,7 @@ async function getPoolInfo(lpToken){
      
     if (!info) return;
     const poolState = LIQUIDITY_STATE_LAYOUT_V4.decode(info.data);
+
    
       if(SOLANA == poolState.quoteMint){
          mainCheck = await solConnection.getTokenAccountBalance(
@@ -202,8 +213,21 @@ async function getPoolInfo(lpToken){
       }
     
       const denominator = new BN(10).pow(poolState.baseDecimal);
-    
+
     return [mainCheck.value.uiAmount, mainAddress];
+}
+
+async function getTime(lpToken){
+  const pair = new PublicKey(lpToken);
+    
+  const info = await tokenConnection.getAccountInfo(pair);
+   
+  if (!info) return;
+  const poolState = LIQUIDITY_STATE_LAYOUT_V4.decode(info.data);
+
+  const startTime =  poolState.poolOpenTime
+  const startDate = new Date(startTime * 1000);
+   return startDate;
 }
 
 async function getChanges(address, lp){
@@ -212,12 +236,6 @@ async function getChanges(address, lp){
     const subscriptionID = transConnection.onAccountChange(
     addr,
     async(updatedAccountInfo, context) => {
-      if(bought == true){
-      }else{
-        console.log("bought Here")
-        bot.sendMessage(msgId,"Bought here");
-        bought = true;
-      }
       if(hit == true){
       }else{
       const Bal = updatedAccountInfo.lamports/1000000000
@@ -258,42 +276,79 @@ async function getChanges(address, lp){
     }
   )
     }
+async function orderBuys(msUntilTarget ){
+//const { Connection, PublicKey, Transaction, SystemProgram, Keypair } = require('@solana/web3.js');
+//const raydiumProgramId = new PublicKey('your_raydium_program_id_here');
+//const serumProgramId = new PublicKey('your_serum_program_id_here');
+//const marketAddress = new PublicKey('your_market_address_here');
+//const wallet = Keypair.generate();
+
+// Define the details of your buy transaction
+//const amountIn = 1000000000; // 1 SOL
+//const amountOutMin = 100000000; // Minimum amount of token you want to receive
+//const tradeType = 0; // 0 for limit order, 1 for market order
+//const orderType = 0; // 0 for buy, 1 for sell
 
 
 
-async function getTokenHolderCount(addr) {
-  const mintAddress = new PublicKey(addr);
-  // Retrieve the token metadata using the TokenListProvider
-  const tokenListProvider = new TokenListProvider();
-  const tokenList = await tokenListProvider.resolve();
-  const tokenMetadata = tokenList.getList(mintAddress.toBase58());
+// Calculate the number of milliseconds until 9:14:56
+// const now = new Date();
+// const targetTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 9, 14, 56);
+// const timeDiff = targetTime - now;
+// const msUntilTarget = timeDiff > 0 ? timeDiff : 86400000 - Math.abs(timeDiff);
 
+// Schedule the buy transaction to be executed 4 seconds before 9:14:56
+setTimeout(() => {
+  // Connect to the Solana devnet cluster
+  // const connection = new Connection('https://api.devnet.solana.com');
 
-  if (!tokenMetadata) {
-    console.log(`Token metadata not found for mint address ${mintAddress.toBase58()}`);
-    return;
-  }
+  // // Get the Serum market account info
+  // const marketAccounts = connection.getParsedAccountInfo(marketAddress);
+  // const market = marketAccounts.value.data.parsed.info;
 
-  // Retrieve the largest accounts that hold the token
-  let tokenAccounts;
-  try {
-    tokenAccounts = await tokenConnection.getTokenLargestAccounts(mintAddress);
-  } catch (error) {
-    console.error(`Error retrieving token accounts: ${error.message}`);
-    return;
-  }
+  // // Create the buy transaction
+  // const transaction = new Transaction();
+  // const instruction = Raydium.createLimitOrderIx(
+  //   raydiumProgramId,
+  //   serumProgramId,
+  //   marketAddress,
+  //   wallet.publicKey,
+  //   new PublicKey('your_base_token_mint_address_here'),
+  //   new PublicKey('your_quote_token_mint_address_here'),
+  //   amountIn * 1000000000, // Convert SOL to lamports
+  //   amountOutMin * 1000000000, // Convert token amount to lamports
+  //   tradeType,
+  //   orderType,
+  //   [],
+  //   market.openOrders,
+  //   market.bids,
+  //   market.asks,
+  //   market.eventQueue,
+  //   market.coinVault,
+  //   market.pcVault,
+  //   market.feeAccount,
+  console.log("Buy here");
+  //   market.vaultSigner,
+  //   []
+  // );
+  // transaction.add(instruction);
 
-   const accountSet = new Array();
-   for (const account of tokenAccounts.value) {
-    accountSet.push(account.address.toBase58());
-   }
-  const holderCount = accountSet.length;
+  // // Sign the transaction with your wallet
+  // transaction.sign(wallet);
 
-  return holderCount; 
+  // // Send the transaction to the Solana devnet cluster
+  // connection.sendTransaction(transaction, [wallet])
+  //   .then(signature => {
+  //     console.log(`Buy transaction sent: ${signature}`);
+  //   })
+  //   .catch(err => {
+  //     console.error(err);
+  //   });
+  }, msUntilTarget - 4000);
 }
-
  function generateExplorerUrl(txId) {
     return `https://solscan.io/tx/${txId}`;
  }
  
 main(connection, raydium).catch(console.error);
+//getPoolInfo('7ipQJShoKhER2gR8feGJ4HDnGb5xTUbHMCdVRomsCMbX')
