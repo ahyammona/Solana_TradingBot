@@ -42,8 +42,8 @@ var raydium_sdk_1 = require("@raydium-io/raydium-sdk");
 var web3_js_1 = require("@solana/web3.js");
 var SESSION_HASH = 'QNDEMO' + Math.ceil(Math.random() * 1e9); // Random unique identifier for your session
 var makeTxVersion = raydium_sdk_1.TxVersion.V0; // LEGACY
-var connection = new web3_js_1.Connection("https://solana-mainnet.core.chainstack.com/2b9789b958c420270f3e09b3fac2d299", {
-    wsEndpoint: "wss://solana-mainnet.core.chainstack.com/ws/2b9789b958c420270f3e09b3fac2d299",
+var connection = new web3_js_1.Connection("https://solana-mainnet.g.alchemy.com/v2/ivbpOnYRAvSjoLJEpPNP910PYIcrtNrw", {
+    wsEndpoint: "wss://solana-mainnet.g.alchemy.com/v2/ivbpOnYRAvSjoLJEpPNP910PYIcrtNrw",
     httpHeaders: { "x-session-hash": SESSION_HASH },
     commitment: 'confirmed'
 });
@@ -195,13 +195,14 @@ function buildAndSendTx(innerSimpleV0Transaction, options) {
 }
 function swapOnlyAmm(input) {
     return __awaiter(this, void 0, void 0, function () {
-        var targetPoolInfo, poolKeys, _a, amountOut, minAmountOut, _b, _c, innerTransactions;
+        var targetPoolInfo, maxLamports, poolKeys, _a, amountOut, minAmountOut, _b, _c, innerTransactions;
         var _d, _e;
         return __generator(this, function (_f) {
             switch (_f.label) {
                 case 0: return [4 /*yield*/, formatAmmKeysById(input.targetPool)];
                 case 1:
                     targetPoolInfo = _f.sent();
+                    maxLamports = 10000;
                     assert(targetPoolInfo, 'cannot find the target pool');
                     poolKeys = (0, raydium_sdk_1.jsonInfo2PoolKeys)(targetPoolInfo);
                     _c = (_b = raydium_sdk_1.Liquidity).computeAmountOut;
@@ -225,7 +226,10 @@ function swapOnlyAmm(input) {
                             amountIn: input.inputTokenAmount,
                             amountOut: minAmountOut,
                             fixedSide: 'in',
-                            makeTxVersion: makeTxVersion
+                            makeTxVersion: makeTxVersion,
+                            computeBudgetConfig: {
+                                microLamports: maxLamports
+                            }
                         })];
                 case 3:
                     innerTransactions = (_f.sent()).innerTransactions;
@@ -237,7 +241,7 @@ function swapOnlyAmm(input) {
         });
     });
 }
-async function Buy(token, Pool, amount, decimal) {
+function Buy(token, Pool, amount, decimal) {
     return __awaiter(this, void 0, void 0, function () {
         var inputToken, outputToken, targetPool, inputTokenAmount, slippage, walletTokenAccounts;
         return __generator(this, function (_a) {
@@ -271,7 +275,7 @@ async function Buy(token, Pool, amount, decimal) {
         });
     });
 }
-async function Sell(token, Pool, amount, decimal) {
+function Sell(token, Pool, amount, decimal) {
     return __awaiter(this, void 0, void 0, function () {
         var inputToken, outputToken, targetPool, inputTokenAmount, slippage, walletTokenAccounts;
         return __generator(this, function (_a) {
@@ -306,5 +310,4 @@ async function Sell(token, Pool, amount, decimal) {
     });
 }
 console.log("why");
-
-module.exports = {Buy,Sell};
+Sell("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", "58oQChx4yWmvKdwLLZzBi4ChoCc2fqCUWBkwMihLYQo2", 38881, 6);

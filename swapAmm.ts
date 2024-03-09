@@ -30,13 +30,15 @@ import {
   Connection,
   Transaction,
   VersionedTransaction,
+  ComputeBudgetInstruction,
+  ComputeBudgetProgram,
   } from '@solana/web3.js';
 
 const SESSION_HASH = 'QNDEMO' + Math.ceil(Math.random() * 1e9); // Random unique identifier for your session
 
  const makeTxVersion = TxVersion.V0; // LEGACY
- const connection = new Connection(`https://solana-mainnet.core.chainstack.com/2b9789b958c420270f3e09b3fac2d299`, {   
-  wsEndpoint: `wss://solana-mainnet.core.chainstack.com/ws/2b9789b958c420270f3e09b3fac2d299`,
+ const connection = new Connection(`https://solana-mainnet.g.alchemy.com/v2/ivbpOnYRAvSjoLJEpPNP910PYIcrtNrw`, {   
+  wsEndpoint: `wss://solana-mainnet.g.alchemy.com/v2/ivbpOnYRAvSjoLJEpPNP910PYIcrtNrw`,
   httpHeaders: {"x-session-hash": SESSION_HASH},
   commitment: 'confirmed' 
 });
@@ -156,9 +158,9 @@ async function formatAmmKeysById(id: string): Promise<ApiPoolInfoV4> {
 async function swapOnlyAmm(input: TestTxInputInfo) {
   // -------- pre-action: get pool info --------
   const targetPoolInfo = await formatAmmKeysById(input.targetPool)
+  const maxLamports = 100000;
   assert(targetPoolInfo, 'cannot find the target pool')
   const poolKeys = jsonInfo2PoolKeys(targetPoolInfo) as LiquidityPoolKeys
-
   // -------- step 1: coumpute amount out --------
   const { amountOut, minAmountOut } = Liquidity.computeAmountOut({
     poolKeys: poolKeys,
@@ -166,8 +168,8 @@ async function swapOnlyAmm(input: TestTxInputInfo) {
     amountIn: input.inputTokenAmount,
     currencyOut: input.outputToken,
     slippage: input.slippage,
+    
   })
-
   // -------- step 2: create instructions by SDK function --------
   const { innerTransactions } = await Liquidity.makeSwapInstructionSimple({
     connection,
@@ -180,6 +182,9 @@ async function swapOnlyAmm(input: TestTxInputInfo) {
     amountOut: minAmountOut,
     fixedSide: 'in',
     makeTxVersion,
+    computeBudgetConfig: {
+      microLamports: maxLamports,
+    },
   })
 
   console.log('amountOut:', amountOut.toFixed(), '  minAmountOut: ', minAmountOut.toFixed())
@@ -230,3 +235,4 @@ async function Sell(token, Pool, amount, decimal) {
   })
 }
 console.log("why");
+Sell("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v","58oQChx4yWmvKdwLLZzBi4ChoCc2fqCUWBkwMihLYQo2",38881,6);
