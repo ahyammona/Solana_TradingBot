@@ -6,7 +6,6 @@ const JSBI = require('jsbi');
 const swap = require("./swapAmm.js");
 const { Wallet } = require('@project-serum/anchor');
 const { Token, TOKEN_PROGRAM_ID, getOrCreateAssociatedTokenAccount } = require('@solana/spl-token');
-
 const bs58 = require('bs58');
 //const { RaydiumSwap } = require("./swap");
 const { TokenSwap } = require("@solana/spl-token-swap");
@@ -50,10 +49,12 @@ let credits = 0;
 const raydium = new PublicKey(RAYDIUM_PUBLIC_KEY);
 const RAv4 = new PublicKey(Raydium_Authority_PUBLIC_KEY);
 // Replace HTTP_URL & WSS_URL with QuickNode HTTPS and WSS Solana Mainnet endpoint
-const connection = new Connection(`https://solana-mainnet.core.chainstack.com/2b9789b958c420270f3e09b3fac2d299`, {   
-    wsEndpoint: `wss://solana-mainnet.core.chainstack.com/ws/2b9789b958c420270f3e09b3fac2d299`,
+const connection = new Connection(`https://solana-mainnet.core.chainstack.com/2249bdb3648274348e0f7c5d8a3496df`, {   
+    wsEndpoint: `wss://solana-mainnet.core.chainstack.com/ws/2249bdb3648274348e0f7c5d8a3496df`,
     httpHeaders: {"x-session-hash": SESSION_HASH}
 });
+//`https://solana-mainnet.core.chainstack.com/968251fbfe51d98ea3cee0bf693ba515`
+//wss://solana-mainnet.core.chainstack.com/ws/968251fbfe51d98ea3cee0bf693ba515`
 const mainConnection = new Connection(`https://solana-mainnet.g.alchemy.com/v2/ivbpOnYRAvSjoLJEpPNP910PYIcrtNrw`, {   
   wsEndpoint: `wss://solana-mainnet.g.alchemy.com/v2/ivbpOnYRAvSjoLJEpPNP910PYIcrtNrw`,
   httpHeaders: {"x-session-hash": SESSION_HASH}
@@ -172,7 +173,7 @@ async function fetchRaydiumAccounts(txId) {
     
     if(initialLP % 1 === 0
       &&  initialLP >= 1 
-      && initialLP <= 10
+      && initialLP <= 100
      ){
      const pairAddress = lpAccount;
      const vaultAddress = vault; 
@@ -194,7 +195,7 @@ async function fetchRaydiumAccounts(txId) {
        startTime: ${startTime}
        Whole
      `)
-    await  orderBuys(msUntilTarget,tokenAAccount,lpAccount,decimal);
+     orderBuys(msUntilTarget,tokenAAccount.toBase58(),lpAccount.toBase58(),Number(decimal));
      getChanges(vaultAddress,tokenAAccount,pairAddress,decimal);
     }else{
       trade = true
@@ -339,7 +340,7 @@ async function getChanges(address,token, lp, decimal){
       const solBal = updatedAccountInfo.lamports/1000000000
       let profit = Number(solBal).toFixed(2) / Number(initialBalance).toFixed(2); 
      if(profit > target){
-       await orderSell(token,lp,decimal) 
+        orderSell(token.toBase58(),lp.toBase58(),Number(decimal)) 
        bot.sendMessage(msgId,` 
        Liquidity Pair: ${lp} 
        Target hit  ${profit}
@@ -366,6 +367,7 @@ async function getChanges(address,token, lp, decimal){
 }
 
 async function orderBuys(msUntilTarget,token,pool, decimal) {
+  bot.sendMessage(msgId,`Purchasing ${token} with ${pool}`);
   const amount = 10000
   setTimeout( async() => {
   await swap.Buy(token,pool,amount,decimal);
@@ -385,8 +387,8 @@ async function orderSell(token,pool,decimal) {
     return `https://solscan.io/tx/${txId}`;
  }
  
-//main(connection, raydium).catch(console.error);
+main(connection, raydium).catch(console.error);
 //getPoolInfo('7ipQJShoKhER2gR8feGJ4HDnGb5xTUbHMCdVRomsCMbX')
 //swap.howToUse();
 //test.decode();
-orderSell("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v","58oQChx4yWmvKdwLLZzBi4ChoCc2fqCUWBkwMihLYQo2",6);
+//orderSell("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v","58oQChx4yWmvKdwLLZzBi4ChoCc2fqCUWBkwMihLYQo2",6);

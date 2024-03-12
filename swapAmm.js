@@ -309,5 +309,5 @@ function Sell(token, Pool, amount, decimal) {
         });
     });
 }
-console.log("why");
-Sell("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", "58oQChx4yWmvKdwLLZzBi4ChoCc2fqCUWBkwMihLYQo2", 38881, 6);
+
+module.exports = {Buy, Sell};
