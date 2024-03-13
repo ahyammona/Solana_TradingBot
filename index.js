@@ -49,8 +49,8 @@ let credits = 0;
 const raydium = new PublicKey(RAYDIUM_PUBLIC_KEY);
 const RAv4 = new PublicKey(Raydium_Authority_PUBLIC_KEY);
 // Replace HTTP_URL & WSS_URL with QuickNode HTTPS and WSS Solana Mainnet endpoint
-const connection = new Connection(`https://solana-mainnet.core.chainstack.com/2249bdb3648274348e0f7c5d8a3496df`, {   
-    wsEndpoint: `wss://solana-mainnet.core.chainstack.com/ws/2249bdb3648274348e0f7c5d8a3496df`,
+const connection = new Connection(`https://solana-mainnet.core.chainstack.com/968251fbfe51d98ea3cee0bf693ba515`, {   
+    wsEndpoint: `wss://solana-mainnet.core.chainstack.com/ws/968251fbfe51d98ea3cee0bf693ba515`,
     httpHeaders: {"x-session-hash": SESSION_HASH}
 });
 //`https://solana-mainnet.core.chainstack.com/968251fbfe51d98ea3cee0bf693ba515`
