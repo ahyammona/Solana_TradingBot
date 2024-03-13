@@ -108,7 +108,7 @@ async function main(connection, programAddress) {
 // Parse transaction and filter data
 async function fetchRaydiumAccounts(txId) {
    
-    const tx = await mainConnection.getParsedTransaction(
+    const tx = await transConnection.getParsedTransaction(
         txId,
         {
             maxSupportedTransactionVersion: 0,
@@ -340,7 +340,7 @@ async function getChanges(address,token, lp, decimal){
       const solBal = updatedAccountInfo.lamports/1000000000
       let profit = Number(solBal).toFixed(2) / Number(initialBalance).toFixed(2); 
      if(profit > target){
-        orderSell(token.toBase58(),lp.toBase58(),Number(decimal)) 
+       await orderSell(token.toBase58(),lp.toBase58(),Number(decimal)) 
        bot.sendMessage(msgId,` 
        Liquidity Pair: ${lp} 
        Target hit  ${profit}
@@ -349,7 +349,6 @@ async function getChanges(address,token, lp, decimal){
        addr = 0;
        profit = 0;
        trade = true
-       main(connection, raydium).catch(console.error);
        bought = false;
     } else if (hit == false && profit < 0.8 && profit > 0.0) { 
         bot.sendMessage(msgId,`Liquidity Pair: ${lp} 
@@ -371,16 +370,17 @@ async function orderBuys(msUntilTarget,token,pool, decimal) {
   const amount = 10000
   setTimeout( async() => {
   await swap.Buy(token,pool,amount,decimal);
-  },msUntilTarget - 4000);
+  },msUntilTarget - 6000);
 }
-async function orderSell(token,pool,decimal) {
-  const walletAddress = new PublicKey("EmGnGTRQdKxV3f328W71VUedVvAGVZZASZsxCKNSF5L4");
-  const tokenAdd = new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
+async function orderSell(token) {
+  const tokenAdd = new PublicKey(token);
   const tokenAddress = await getOrCreateAssociatedTokenAccount(mainConnection,wallet, tokenAdd  ,wallet.publicKey )// RAY
  // const getTokenAccountBalance = await tokenConnection.getTokenAccountsByOwner(walletAddress,tokenAddress);
   const balance = Number(tokenAddress.amount);
-   
+  //console.log(balance);
   await swap.Sell(token,pool,balance,decimal);
+
+ // main(connection, raydium).catch(console.error);
 }
 
  function generateExplorerUrl(txId) {
@@ -391,4 +391,4 @@ main(connection, raydium).catch(console.error);
 //getPoolInfo('7ipQJShoKhER2gR8feGJ4HDnGb5xTUbHMCdVRomsCMbX')
 //swap.howToUse();
 //test.decode();
-//orderSell("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v","58oQChx4yWmvKdwLLZzBi4ChoCc2fqCUWBkwMihLYQo2",6);
+//orderSell("H5d4Ce7YTLwxEKKAjRaQgPJPQhs2epDXUirpDepmZweR");

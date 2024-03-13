@@ -42,9 +42,9 @@ var raydium_sdk_1 = require("@raydium-io/raydium-sdk");
 var web3_js_1 = require("@solana/web3.js");
 var SESSION_HASH = 'QNDEMO' + Math.ceil(Math.random() * 1e9); // Random unique identifier for your session
 var makeTxVersion = raydium_sdk_1.TxVersion.V0; // LEGACY
-var connection = new web3_js_1.Connection("https://solana-mainnet.g.alchemy.com/v2/ivbpOnYRAvSjoLJEpPNP910PYIcrtNrw", {
-    wsEndpoint: "wss://solana-mainnet.g.alchemy.com/v2/ivbpOnYRAvSjoLJEpPNP910PYIcrtNrw",
-    httpHeaders: { "x-session-hash": SESSION_HASH },
+var connection = new web3_js_1.Connection(`https://api.mainnet-beta.solana.com`, {   
+    wsEndpoint: `wss://api.mainnet-beta.solana.com`,
+    httpHeaders: {"x-session-hash": SESSION_HASH},
     commitment: 'confirmed'
 });
 var mainConnection = new web3_js_1.Connection("https://solana-mainnet.g.alchemy.com/v2/ivbpOnYRAvSjoLJEpPNP910PYIcrtNrw", {
@@ -202,7 +202,7 @@ function swapOnlyAmm(input) {
                 case 0: return [4 /*yield*/, formatAmmKeysById(input.targetPool)];
                 case 1:
                     targetPoolInfo = _f.sent();
-                    maxLamports = 10000;
+                    maxLamports = 100000;
                     assert(targetPoolInfo, 'cannot find the target pool');
                     poolKeys = (0, raydium_sdk_1.jsonInfo2PoolKeys)(targetPoolInfo);
                     _c = (_b = raydium_sdk_1.Liquidity).computeAmountOut;
