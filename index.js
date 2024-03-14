@@ -49,8 +49,8 @@ let credits = 0;
 const raydium = new PublicKey(RAYDIUM_PUBLIC_KEY);
 const RAv4 = new PublicKey(Raydium_Authority_PUBLIC_KEY);
 // Replace HTTP_URL & WSS_URL with QuickNode HTTPS and WSS Solana Mainnet endpoint
-const connection = new Connection(`https://solana-mainnet.core.chainstack.com/968251fbfe51d98ea3cee0bf693ba515`, {   
-    wsEndpoint: `wss://solana-mainnet.core.chainstack.com/ws/968251fbfe51d98ea3cee0bf693ba515`,
+const connection = new Connection(`https://solana-mainnet.core.chainstack.com/500a50e949070da73951d8d4f493532b`, {   
+    wsEndpoint: `wss://solana-mainnet.core.chainstack.com/ws/500a50e949070da73951d8d4f493532b`,
     httpHeaders: {"x-session-hash": SESSION_HASH}
 });
 //`https://solana-mainnet.core.chainstack.com/968251fbfe51d98ea3cee0bf693ba515`
@@ -157,7 +157,8 @@ async function fetchRaydiumAccounts(txId) {
     console.log("Sol bal: " + initialLP);
     console.log("Sol Vault: " + vault);
     console.log("Total QuickNode Credits Used in this session:", credits);
-  
+    
+    bot.sendMessage()
     bot.sendMessage(msgId,`
     💹💹  
    ~~~~~~~~~~~~~~~~~~

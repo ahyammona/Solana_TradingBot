@@ -42,8 +42,8 @@ var raydium_sdk_1 = require("@raydium-io/raydium-sdk");
 var web3_js_1 = require("@solana/web3.js");
 var SESSION_HASH = 'QNDEMO' + Math.ceil(Math.random() * 1e9); // Random unique identifier for your session
 var makeTxVersion = raydium_sdk_1.TxVersion.V0; // LEGACY
-var connection = new web3_js_1.Connection(`https://api.mainnet-beta.solana.com`, {   
-    wsEndpoint: `wss://api.mainnet-beta.solana.com`,
+var connection = new web3_js_1.Connection(`https://solana-mainnet.core.chainstack.com/500a50e949070da73951d8d4f493532b`, {   
+    wsEndpoint: `wss://solana-mainnet.core.chainstack.com/ws/500a50e949070da73951d8d4f493532b`,
     httpHeaders: {"x-session-hash": SESSION_HASH},
     commitment: 'confirmed'
 });
@@ -228,7 +228,8 @@ function swapOnlyAmm(input) {
                             fixedSide: 'in',
                             makeTxVersion: makeTxVersion,
                             computeBudgetConfig: {
-                                microLamports: maxLamports
+                                units: 600000,
+                                microLamports: 250000,
                             }
                         })];
                 case 3:
