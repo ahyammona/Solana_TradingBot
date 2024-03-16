@@ -13,6 +13,18 @@ const { TokenSwap } = require("@solana/spl-token-swap");
 const { LIQUIDITY_STATE_LAYOUT_V4, Liquidity} = require("@raydium-io/raydium-sdk");
 const BN = require('bn.js');
 
+const express = require('express');
+
+const app = express();
+const PORT = 5001;
+app.use(express.json())
+
+app.listen(
+  PORT, 
+  () => console.log(`https://probably-suited-possum.ngrok-free.app/api/callback`)
+);
+
+
 
 const TelegramBot = require("node-telegram-bot-api");
 const { createJupiterApiClient } = require('@jup-ag/api');
@@ -80,35 +92,45 @@ const buysConnection = new Connection(`https://rpc.ankr.com/solana`)
 //https://solana-mainnet.core.chainstack.com/3b95e037a5072747e238f2688e4e50df
 //https://mainnet.helius-rpc.com/?api-key=2313f341-97ba-4d78-88b2-63b3fe80154c
 // Monitor logs
-
-async function main(connection, programAddress) {
-    console.log("Raydium Authority v4:", RAv4.toString());
-    console.log("Monitoring logs for program:", programAddress.toString());
+app.post("/api/callback", (req, res) => {
+  const data = req.body
+  const signature = data.signatures[0];  
+  if(trade == false){
+  }else{
+      console.log("Listening to New Pair on Solana");
+      console.log("Signature for 'initialize2':", signature);
+       fetchRaydiumAccounts(signature);  
+       trade = false;
+    }
+});
+// async function main(connection, programAddress) {
+//     console.log("Raydium Authority v4:", RAv4.toString());
+//     console.log("Monitoring logs for program:", programAddress.toString());
     
-    connection.onLogs(
-        programAddress,
-        ({ logs, err, signature }) => {
-          if(trade == false){
-          }else{
-            if (err) return;
-            if (logs && logs.some(log => log.includes("initialize2"))) {
-                console.log("Signature for 'initialize2':", signature);
-                fetchRaydiumAccounts(signature);  
-                trade = false;
-            }
-          }
-        },
-        "finalized"
+//     connection.onLogs(
+//         programAddress,
+//         ({ logs, err, signature }) => {
+//           if(trade == false){
+//           }else{
+//             if (err) return;
+//             if (logs && logs.some(log => log.includes("initialize2"))) {
+//                 console.log("Signature for 'initialize2':", signature);
+//                 fetchRaydiumAccounts(signature);  
+//                 trade = false;
+//             }
+//           }
+//         },
+//         "finalized"
         
-    );
+//     );
 
       
-}
+// }
 
 // Parse transaction and filter data
 async function fetchRaydiumAccounts(txId) {
    
-    const tx = await transConnection.getParsedTransaction(
+    const tx = await mainConnection.getParsedTransaction(
         txId,
         {
             maxSupportedTransactionVersion: 0,
@@ -144,7 +166,6 @@ async function fetchRaydiumAccounts(txId) {
       initialLP % 1 !== 0
       ){
       trade = true
-      main(connection, raydium).catch(console.error);
     }else{
     const now = new Date();
     const targetTime = new Date(startTime.getFullYear(), startTime.getMonth(), startTime.getDate(), startTime.getHours(), startTime.getMinutes(), startTime.getSeconds(),startTime.getMilliseconds());
@@ -157,8 +178,6 @@ async function fetchRaydiumAccounts(txId) {
     console.log("Sol bal: " + initialLP);
     console.log("Sol Vault: " + vault);
     console.log("Total QuickNode Credits Used in this session:", credits);
-    
-    bot.sendMessage()
     bot.sendMessage(msgId,`
     💹💹  
    ~~~~~~~~~~~~~~~~~~
@@ -200,7 +219,7 @@ async function fetchRaydiumAccounts(txId) {
      getChanges(vaultAddress,tokenAAccount,pairAddress,decimal);
     }else{
       trade = true
-      main(connection, raydium).catch(console.error);
+    //  main(connection, raydium).catch(console.error);
     }
    }
   
@@ -355,7 +374,7 @@ async function getChanges(address,token, lp, decimal){
         bot.sendMessage(msgId,`Liquidity Pair: ${lp} 
        Target Not hit  ${profit} `); 
         trade = true
-        main(connection, raydium).catch(console.error);
+  //      main(connection, raydium).catch(console.error);
         hit == true;
         addr = 0;
         profit = 0;
@@ -388,7 +407,7 @@ async function orderSell(token) {
     return `https://solscan.io/tx/${txId}`;
  }
  
-main(connection, raydium).catch(console.error);
+//main(connection, raydium).catch(console.error);
 //getPoolInfo('7ipQJShoKhER2gR8feGJ4HDnGb5xTUbHMCdVRomsCMbX')
 //swap.howToUse();
 //test.decode();
