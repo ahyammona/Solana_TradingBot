@@ -1,5 +1,5 @@
 require('dotenv').config();
-const main = require('../main');
+const main = require('./main');
 const five = require('../oneX/five');
 const telegram = require('../bot/telegram');
 const web3 = require('../wallet/bsc');

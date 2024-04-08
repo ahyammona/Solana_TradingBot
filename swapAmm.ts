@@ -1,4 +1,3 @@
-import assert = require("assert");
 import {Wallet} from '@project-serum/anchor';
 
 import {
@@ -32,16 +31,22 @@ import {
   VersionedTransaction,
   ComputeBudgetInstruction,
   ComputeBudgetProgram,
+  TransactionInstruction,
+  TransactionMessage,
   } from '@solana/web3.js';
+import { bull_dozer } from './jito_bundle/send_bundle';
+
 
 const SESSION_HASH = 'QNDEMO' + Math.ceil(Math.random() * 1e9); // Random unique identifier for your session
 
  const makeTxVersion = TxVersion.V0; // LEGACY
- const connection = new Connection(`https://solana-mainnet.g.alchemy.com/v2/ivbpOnYRAvSjoLJEpPNP910PYIcrtNrw`, {   
-  wsEndpoint: `wss://solana-mainnet.g.alchemy.com/v2/ivbpOnYRAvSjoLJEpPNP910PYIcrtNrw`,
-  httpHeaders: {"x-session-hash": SESSION_HASH},
-  commitment: 'confirmed' 
-});
+ var connection = new Connection(`https://rpc.shyft.to?api_key=y95Oi5qy1j3Ik2w0`, 'confirmed');
+
+//  const connection = new Connection(`https://solana-mainnet.g.alchemy.com/v2/ivbpOnYRAvSjoLJEpPNP910PYIcrtNrw`, {   
+//   wsEndpoint: `wss://solana-mainnet.g.alchemy.com/v2/ivbpOnYRAvSjoLJEpPNP910PYIcrtNrw`,
+//   httpHeaders: {"x-session-hash": SESSION_HASH},
+//   commitment: 'confirmed' 
+// });
 const mainConnection = new Connection(`https://solana-mainnet.g.alchemy.com/v2/ivbpOnYRAvSjoLJEpPNP910PYIcrtNrw`, {   
 wsEndpoint: `wss://solana-mainnet.g.alchemy.com/v2/ivbpOnYRAvSjoLJEpPNP910PYIcrtNrw`,
 httpHeaders: {"x-session-hash": SESSION_HASH},
@@ -64,7 +69,7 @@ type TestTxInputInfo = {
   wallet: Keypair
 }
 const privateKey = new Uint8Array([
-    190, 129, 89, 173, 55, 130, 139, 23, 88, 207, 184, 103, 72, 95, 227, 117, 84, 176, 28, 102, 157, 220, 115, 141, 112, 27, 39, 106, 235, 152, 176, 129, 204, 127, 84, 35, 30, 174, 194, 82, 218, 197, 41, 29, 40, 127, 141, 231, 136, 82, 169, 81, 35, 98, 54, 198, 168, 30, 48, 46, 231, 166, 154, 193
+  228,110,17,108,138,39,103,38,106,160,16,109,222,208,45,94,230,140,168,148,7,166,98,119,236,96,146,0,195,58,217,250,24,236,168,240,15,121,103,31,131,5,134,250,32,85,157,61,17,183,118,63,13,234,77,232,151,30,62,120,119,73,185,174
   ]);
 const wallet = new Wallet(Keypair.fromSecretKey(privateKey));
 const addLookupTableInfo = LOOKUP_TABLE_CACHE
@@ -142,7 +147,32 @@ async function formatAmmKeysById(id: string): Promise<ApiPoolInfoV4> {
       accountInfo: SPL_ACCOUNT_LAYOUT.decode(i.account.data),
     }));
    }
-  
+  async function createAndSendVOTX(txInstructions: TransactionInstruction[], wallets : Keypair[]){
+    let latestBlockhash = await connection.getLatestBlockhash('confirmed');
+    const priority_fee_price = ComputeBudgetProgram.setComputeUnitPrice({microLamports: 100_000})
+    txInstructions.push(priority_fee_price);
+
+    const messageV0 = new TransactionMessage({
+      payerKey : wallets[0].publicKey,
+      recentBlockhash : latestBlockhash.blockhash,
+      instructions:txInstructions
+    }).compileToV0Message();
+
+    const transaction = new VersionedTransaction(messageV0);
+
+    console.log("Transaction Size: ", transaction.serialize().length);
+
+    transaction.sign(wallets)
+
+    const txid = await connection.sendTransaction(transaction, {skipPreflight:true, maxRetries: 30});
+
+    console.log(`Transaction Sent to Network  https://solscan.io/tx/${txid}`);
+
+    const confirmation = await connection.confirmTransaction({signature: txid, blockhash:latestBlockhash.blockhash,lastValidBlockHeight: latestBlockhash.lastValidBlockHeight})
+
+    if(confirmation.value.err){throw new Error("Transaction not confirmed.")}
+    console.log(`Transaction Successfully confirmed! https://explorer.solana.com/tx/${txid}`);
+  }
  async function buildAndSendTx(innerSimpleV0Transaction: InnerSimpleV0Transaction[], options?: SendOptions) {
     const willSendTx = await buildSimpleTransaction({
       connection,
@@ -158,8 +188,8 @@ async function formatAmmKeysById(id: string): Promise<ApiPoolInfoV4> {
 async function swapOnlyAmm(input: TestTxInputInfo) {
   // -------- pre-action: get pool info --------
   const targetPoolInfo = await formatAmmKeysById(input.targetPool)
-  const maxLamports = 100000;
-  assert(targetPoolInfo, 'cannot find the target pool')
+  //10500000,
+  if(targetPoolInfo == null ){throw new Error('cannot find the target pool')}
   const poolKeys = jsonInfo2PoolKeys(targetPoolInfo) as LiquidityPoolKeys
   // -------- step 1: coumpute amount out --------
   const { amountOut, minAmountOut } = Liquidity.computeAmountOut({
@@ -183,22 +213,33 @@ async function swapOnlyAmm(input: TestTxInputInfo) {
     fixedSide: 'in',
     makeTxVersion,
     computeBudgetConfig: {
-      microLamports: maxLamports,
+      units :  600000,
+      microLamports: 100000,
     },
   })
 
   console.log('amountOut:', amountOut.toFixed(), '  minAmountOut: ', minAmountOut.toFixed())
 
-  return { txids: await buildAndSendTx(innerTransactions) }
+  //return { txids: await buildAndSendTx(innerTransactions,{maxRetries:30}) }
+  
+  //return await createAndSendVOTX(innerTransactions[0].instructions,[wallet.payer])
+  let success = await bull_dozer(innerTransactions);
+  while (success < 1){
+    success = await bull_dozer(innerTransactions);
+    }
+    if (success > 0){
+      console.log("------------- Bundle/Transaction Successful ---------");
+    }
+  
 }
 
-async function Buy(token,Pool, amount, decimal) {
+export async function Buy(token,Pool, amount, decimal) {
   
   const inputToken = DEFAULT_TOKEN.WSOL // USDC
   const outputToken = new Token(TOKEN_PROGRAM_ID, new PublicKey(token), decimal)// RAY
   const targetPool = Pool // USDC-RAY pool
   const inputTokenAmount = new TokenAmount(inputToken, amount)
-  const slippage = new Percent(1, 100)
+  const slippage = new Percent(100, 100)
   const walletTokenAccounts = await getWalletTokenAccount(connection, wallet.publicKey)
 
   swapOnlyAmm({
@@ -208,18 +249,18 @@ async function Buy(token,Pool, amount, decimal) {
     slippage,
     walletTokenAccounts,
     wallet: wallet.payer,
-  }).then(({ txids }) => {
+  })//.then(({ txids }) => {
     /** continue with txids */
-    console.log('txids', txids)
-  })
+    //console.log('txids', txids)
+ // })
 }
-async function Sell(token, Pool, amount, decimal) {
+export async function Sell(token, Pool, amount, decimal) {
   const inputToken = new Token(TOKEN_PROGRAM_ID, new PublicKey(token), decimal)// USDC
-  const outputToken = DEFAULT_TOKEN.WSOL // RAY
-  const targetPool = Pool // USDC-RAY pool
+  const outputToken = DEFAULT_TOKEN.WSOL
+  const targetPool = Pool 
   
   const inputTokenAmount = new TokenAmount(inputToken, amount)
-  const slippage = new Percent(1, 100)
+  const slippage = new Percent(100, 100)
   const walletTokenAccounts = await getWalletTokenAccount(connection, wallet.publicKey)
 
   swapOnlyAmm({
@@ -229,10 +270,8 @@ async function Sell(token, Pool, amount, decimal) {
     slippage,
     walletTokenAccounts,
     wallet: wallet.payer,
-  }).then(({ txids }) => {
+  })//.then(({ txids }) => {
     /** continue with txids */
-    console.log('txids', txids)
-  })
+    //console.log('txids', txids)
+ // })
 }
-console.log("why");
-Sell("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v","58oQChx4yWmvKdwLLZzBi4ChoCc2fqCUWBkwMihLYQo2",38881,6);
