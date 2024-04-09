@@ -140,7 +140,7 @@ bot.on('text', async(ctx) => {
             setInterval(async() => { 
               tokenInfo = await info(trades[0])
               console.log(`Searching for ${trades[0]}`)
-             }, 35000)
+             }, 10000)
            }else if(Response == trades[1]){
             ctx.reply(`${trades[1]} Without Lp
            Saving Contract till LP
@@ -151,7 +151,7 @@ bot.on('text', async(ctx) => {
             setInterval(async() => { 
               tokenInfo = await info(trades[1])
               console.log(`Searching for ${trades[1]}`)
-             }, 35000)
+             }, 10000)
            }else{
              ctx.reply(`${trades[2]} Without Lp
            Saving Contract till LP
@@ -160,7 +160,7 @@ bot.on('text', async(ctx) => {
             setInterval(async() => { 
               tokenInfo = await info(trades[2])
               console.log(`Searching for ${trades[2]}`)
-             }, 35000)
+             }, 10000)
            }  
        }else{ 
        ctx.reply(
