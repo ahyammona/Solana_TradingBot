@@ -128,8 +128,12 @@ bot.on('text', async(ctx) => {
    // ctx.deleteMessage();
     if(trades.length>=1){
        let tokenInfo = await info(Response);
+       let tInfo;
+       if(tokenInfo == null){
+          tInfo = true;
+       }
        if(
-         tokenInfo == null
+          tInfo == true
         ){               
            ctx.reply("Token is yet to Launch");
            if(Response == trades[0]){
@@ -138,32 +142,38 @@ bot.on('text', async(ctx) => {
            
            You can only store 2 more
            `)
-            console.log("trade [0]" + trades[0])
+            console.log("trade : " + trades[0])
             setInterval(async() => { 
               tokenInfo = await info(trades[0])
               console.log(`Searching for ${trades[0]}`)
-             }, 10000)
-           }else if(Response == trades[1]){
-            ctx.reply(`${trades[1]} Without Lp
-           Saving Contract till LP
+               if(tokenInfo != null){
+                  console.log(`Search over`);
+                 tInfo = false;
+                 console.log(`${tokenInfo.tokenName} Launched!!`)
+               }
+          //    }, 10000)
+          //  }else if(Response == trades[1]){
+          //   ctx.reply(`${trades[1]} Without Lp
+          //  Saving Contract till LP
            
-           You can only store 1 more
-           `)
-            console.log("trade [1]" + trades[1])
-            setInterval(async() => { 
-              tokenInfo = await info(trades[1])
-              console.log(`Searching for ${trades[1]}`)
-             }, 10000)
-           }else{
-             ctx.reply(`${trades[2]} Without Lp
-           Saving Contract till LP
-           `)
-            console.log("trade [2]" + trades[2])
-            setInterval(async() => { 
-              tokenInfo = await info(trades[2])
-              console.log(`Searching for ${trades[2]}`)
-             }, 10000)
-           }  
+          //  You can only store 1 more
+          //  `)
+          //   console.log("trade [1]" + trades[1])
+          //   setInterval(async() => { 
+          //     tokenInfo = await info(trades[1])
+          //     console.log(`Searching for ${trades[1]}`)
+              
+          //    }, 10000)
+          //  }else{
+          //    ctx.reply(`${trades[2]} Without Lp
+          //  Saving Contract till LP
+          //  `)
+          //   console.log("trade [2]" + trades[2])
+          //   setInterval(async() => { 
+          //     tokenInfo = await info(trades[2])
+          //     console.log(`Searching for ${trades[2]}`)
+              }, 10000)
+            }  
        }else{ 
        ctx.reply(
         `  🪙 ${tokenInfo.tokenName} Token Info
