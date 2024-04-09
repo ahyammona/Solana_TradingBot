@@ -139,8 +139,6 @@ bot.on('text', async(ctx) => {
            if(Response == trades[0]){
             ctx.reply(`${trades[0]} Without Lp
            Saving Contract till LP
-           
-           You can only store 2 more
            `)
             console.log("trade : " + trades[0])
            let interval = setInterval(async() => { 
@@ -188,7 +186,7 @@ bot.on('text', async(ctx) => {
                 const targetTime : any = new Date(tokenInfo.startTime.getFullYear(), tokenInfo.startTime.getMonth(),tokenInfo.startTime.getDate(), tokenInfo.startTime.getHours(), tokenInfo.startTime.getMinutes(), tokenInfo.startTime.getSeconds(),tokenInfo.startTime.getMilliseconds());
                 const timeDiff : any = targetTime - now;
                 const msUntilTarget = timeDiff > 0 ? timeDiff : 86400000 - Math.abs(timeDiff);
-            //    orderBuys(msUntilTarget,tokenInfo.token.toString(),tokenInfo.lp.toString(),Number(tokenInfo.decimal))
+               orderBuys(msUntilTarget,tokenInfo.token.toString(),tokenInfo.lp.toString(),Number(tokenInfo.decimal))
                  const MAX_RETRIES = 10000;
                  const BASE_DELAY = 1000;
                  let retries = 0;
@@ -233,28 +231,6 @@ bot.on('text', async(ctx) => {
                  )   
                 
               }
-               
-          //    }, 10000)
-          //  }else if(Response == trades[1]){
-          //   ctx.reply(`${trades[1]} Without Lp
-          //  Saving Contract till LP
-           
-          //  You can only store 1 more
-          //  `)
-          //   console.log("trade [1]" + trades[1])
-          //   setInterval(async() => { 
-          //     tokenInfo = await info(trades[1])
-          //     console.log(`Searching for ${trades[1]}`)
-              
-          //    }, 10000)
-          //  }else{
-          //    ctx.reply(`${trades[2]} Without Lp
-          //  Saving Contract till LP
-          //  `)
-          //   console.log("trade [2]" + trades[2])
-          //   setInterval(async() => { 
-          //     tokenInfo = await info(trades[2])
-          //     console.log(`Searching for ${trades[2]}`)
               }, 10000)
             }  
        }else{ 
@@ -295,7 +271,7 @@ bot.on('text', async(ctx) => {
       const targetTime : any = new Date(tokenInfo.startTime.getFullYear(), tokenInfo.startTime.getMonth(),tokenInfo.startTime.getDate(), tokenInfo.startTime.getHours(), tokenInfo.startTime.getMinutes(), tokenInfo.startTime.getSeconds(),tokenInfo.startTime.getMilliseconds());
       const timeDiff : any = targetTime - now;
       const msUntilTarget = timeDiff > 0 ? timeDiff : 86400000 - Math.abs(timeDiff);
-     // orderBuys(msUntilTarget,tokenInfo.token.toString(),tokenInfo.lp.toString(),Number(tokenInfo.decimal))
+      orderBuys(msUntilTarget,tokenInfo.token.toString(),tokenInfo.lp.toString(),Number(tokenInfo.decimal))
        const MAX_RETRIES = 10000;
        const BASE_DELAY = 1000;
        let retries = 0;
