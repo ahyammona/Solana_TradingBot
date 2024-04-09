@@ -81,7 +81,7 @@ const privateKey = new Uint8Array([
   
     let maybeBundle = bund.addTipTx(
       wallet.payer,
-      1000000,
+      2000000,
       tipAccount,
       resp.blockhash
     );

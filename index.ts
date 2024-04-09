@@ -62,7 +62,8 @@ let token;
 let pair;
 let decimal;
 let confirm;
-const amount = 10000
+const amount = 56000000
+
 
 
 var trades : Array<String> = []
@@ -93,9 +94,9 @@ bot.command('enterTrade', async (ctx) => await ctx.reply('Hi, Ready to enter Tra
 bot.command('sell', async(ctx) => {
   console.log(`Token ${token}, Pair ${pair}, Decimal ${decimal}`)
   const successful = await orderSell(token,pair,Number(decimal));
-  if(successful == true){
-    ctx.reply("Sell Successful");
-  }
+  // if(successful == true){
+  //   ctx.reply("Sell Successful");
+  // }
 })
 
 bot.action(/.+/,async (ctx) => {
@@ -127,7 +128,7 @@ bot.on('text', async(ctx) => {
        let tokenInfo = await info(Response);
        if(
          tokenInfo == null
-      ){               
+        ){               
            ctx.reply("Token is yet to Launch");
            if(Response == trades[0]){
             ctx.reply(`${trades[0]} Without Lp
@@ -192,13 +193,14 @@ bot.on('text', async(ctx) => {
         Balance: ${Number(tokenInfo.ownerBalance).toFixed(2)} SOL
         `
        )
-       token = tokenInfo.token
-       pair = tokenInfo.lp
-       decimal = tokenInfo.decimal
-       
       //  if(tokenInfo.successful == true){
       //   ctx.reply(`Buy Successful`);
       //  }
+      const now : any = new Date();
+      const targetTime : any = new Date(tokenInfo.startTime.getFullYear(), tokenInfo.startTime.getMonth(),tokenInfo.startTime.getDate(), tokenInfo.startTime.getHours(), tokenInfo.startTime.getMinutes(), tokenInfo.startTime.getSeconds(),tokenInfo.startTime.getMilliseconds());
+      const timeDiff : any = targetTime - now;
+      const msUntilTarget = timeDiff > 0 ? timeDiff : 86400000 - Math.abs(timeDiff);
+      await orderBuys(msUntilTarget,tokenInfo.token.toString(),tokenInfo.lp.toString(),Number(tokenInfo.decimal))
        const MAX_RETRIES = 10000;
        const BASE_DELAY = 1000;
        let retries = 0;
@@ -302,7 +304,7 @@ async function info(pair) {
    const targetTime : any = new Date(startTime.getFullYear(), startTime.getMonth(),startTime.getDate(), startTime.getHours(), startTime.getMinutes(), startTime.getSeconds(),startTime.getMilliseconds());
    const timeDiff : any = targetTime - now;
    const msUntilTarget = timeDiff > 0 ? timeDiff : 86400000 - Math.abs(timeDiff);
-   const successful =  await orderBuys(msUntilTarget,token.toString(),lp.toString(),Number(decimal))
+  //  const successful =  await orderBuys(msUntilTarget,token.toString(),lp.toString(),Number(decimal))
    return {
     tokenName,
     tokenSym,
@@ -313,7 +315,7 @@ async function info(pair) {
      decimal,
      vault,
      owner,
-     successful,
+   //  successful,
      ownerBalance
    }
    }
