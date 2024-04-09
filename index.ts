@@ -263,7 +263,7 @@ async function info(pair) {
      pair
     );
 
-  const [metadataPDA] = anchor.web3.PublicKey.findProgramAddressSync(
+  const [metadataPDA] = await anchor.web3.PublicKey.findProgramAddressSync(
     [
       Buffer.from("metadata"),
       TOKEN_METADATA_PROGRAM_ID.toBuffer(),
