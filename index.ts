@@ -25,10 +25,12 @@ const api = `YMyDOr87OBzT6TWr`;
 const SESSION_HASH = 'QNDEMO' + Math.ceil(Math.random() * 1e9); // Random unique identifier for your session
 
 const endpoint = `https://programs.shyft.to/v0/graphql/?api_key=${api}`;
-const connection = new Connection(`https://solana-mainnet.core.chainstack.com/500a50e949070da73951d8d4f493532b`, {   
-    wsEndpoint: `wss://solana-mainnet.core.chainstack.com/ws/500a50e949070da73951d8d4f493532b`,
-    httpHeaders: {"x-session-hash": SESSION_HASH}
-});
+// const connection = new Connection(`https://solana-mainnet.core.chainstack.com/500a50e949070da73951d8d4f493532b`, {   
+//     wsEndpoint: `wss://solana-mainnet.core.chainstack.com/ws/500a50e949070da73951d8d4f493532b`,
+//     httpHeaders: {"x-session-hash": SESSION_HASH}
+// });
+const connection = new Connection(`https://rpc.shyft.to?api_key=YMyDOr87OBzT6TWr`, 'confirmed');
+
 //`https://solana-mainnet.core.chainstack.com/968251fbfe51d98ea3cee0bf693ba515`
 //wss://solana-mainnet.core.chainstack.com/ws/968251fbfe51d98ea3cee0bf693ba515`
 const mainConnection = new Connection(`https://solana-mainnet.g.alchemy.com/v2/ivbpOnYRAvSjoLJEpPNP910PYIcrtNrw`, {   
