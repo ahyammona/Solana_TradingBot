@@ -2,6 +2,7 @@
 node_modules/
 .env
 wallet/ethereum.js
+test.test.ts
 =======
 # Logs
 logs

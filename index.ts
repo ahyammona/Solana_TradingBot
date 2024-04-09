@@ -121,14 +121,14 @@ bot.on('text', async(ctx) => {
   const Response = ctx.message?.text!
   if(trades.length >= 3){
    ctx.reply("Entry Filled");
-  }else{ 
+  }else{
+    let tInfo = false;
     console.log(Response)
     ctx.reply(`Locking in Token Address : ${Response}`)
     trades.push(Response);
    // ctx.deleteMessage();
-    if(trades.length>=1){
+    if(trades.length>=1 && tInfo == false ){
        let tokenInfo = await info(Response);
-       let tInfo;
        if(tokenInfo == null){
           tInfo = true;
        }
@@ -143,14 +143,16 @@ bot.on('text', async(ctx) => {
            You can only store 2 more
            `)
             console.log("trade : " + trades[0])
-            setInterval(async() => { 
-              tokenInfo = await info(trades[0])
-              console.log(`Searching for ${trades[0]}`)
-               if(tokenInfo != null){
+            return new Promise((resolve) => {
+              let intervalId = setInterval(async () => {
+                tokenInfo = await info(trades[0]);
+                if (tokenInfo != null) {
+                  clearInterval(intervalId);
                   console.log(`Search over`);
-                 tInfo = false;
-                 console.log(`${tokenInfo.tokenName} Launched!!`)
-               }
+                  tInfo = false;
+                  console.log(`${tokenInfo.tokenName} Launched!!`)
+                  // Resolve the Promise with the tokenInfo object
+                  resolve(tokenInfo);
           //    }, 10000)
           //  }else if(Response == trades[1]){
           //   ctx.reply(`${trades[1]} Without Lp
@@ -172,10 +174,13 @@ bot.on('text', async(ctx) => {
           //   setInterval(async() => { 
           //     tokenInfo = await info(trades[2])
           //     console.log(`Searching for ${trades[2]}`)
-              }, 10000)
-            }  
-       }else{ 
-       ctx.reply(
+          }
+        }, 10000);
+      });
+     }  
+    }else{ 
+     Promise.resolve(tokenInfo).then((tokenInfo) => {
+          ctx.reply(
         `  🪙 ${tokenInfo.tokenName} Token Info
 
         Name:  ${tokenInfo.tokenName}
@@ -255,11 +260,16 @@ bot.on('text', async(ctx) => {
      throw new Error('Max retries exceeded');
       }
        )   
-     
+      }).catch((error) => {
+        // Handle any errors that occurred while resolving the Promise
+        console.error(error);
+      });
     }
+    
   }
     } 
 });
+
 
 bot.launch()
 
