@@ -121,14 +121,14 @@ bot.on('text', async(ctx) => {
   const Response = ctx.message?.text!
   if(trades.length >= 3){
    ctx.reply("Entry Filled");
-  }else{
-    let tInfo = false;
+  }else{ 
     console.log(Response)
     ctx.reply(`Locking in Token Address : ${Response}`)
     trades.push(Response);
    // ctx.deleteMessage();
-    if(trades.length>=1 && tInfo == false ){
+    if(trades.length>=1){
        let tokenInfo = await info(Response);
+       let tInfo;
        if(tokenInfo == null){
           tInfo = true;
        }
@@ -143,16 +143,97 @@ bot.on('text', async(ctx) => {
            You can only store 2 more
            `)
             console.log("trade : " + trades[0])
-            return new Promise((resolve) => {
-              let intervalId = setInterval(async () => {
-                tokenInfo = await info(trades[0]);
-                if (tokenInfo != null) {
-                  clearInterval(intervalId);
+           let interval = setInterval(async() => { 
+              tokenInfo = await info(trades[0])
+              console.log(`Searching for ${trades[0]}`)
+               if(tokenInfo != null){
                   console.log(`Search over`);
-                  tInfo = false;
-                  console.log(`${tokenInfo.tokenName} Launched!!`)
-                  // Resolve the Promise with the tokenInfo object
-                  resolve(tokenInfo);
+                 tInfo = false;
+                 clearInterval(interval)
+                 console.log(`${tokenInfo.tokenName} Launched!!`)
+                 ctx.reply(
+                  `  🪙 ${tokenInfo.tokenName} Token Info
+          
+                  Name:  ${tokenInfo.tokenName}
+          
+                  Symbol:  ${tokenInfo.tokenSym}
+          
+                  Pair Token : SOLANA
+          
+                  Pair: ${tokenInfo.lp}
+          
+                  Token: ${tokenInfo.token}
+          
+                  Vault: ${tokenInfo.vault}
+          
+                  Sol Bal: ${Number(tokenInfo.vaultBalance).toFixed(2)} Sol
+          
+                  Decimal: ${tokenInfo.decimal}
+          
+                  OpenTime: ${tokenInfo.startTime}
+          
+                  
+          
+                  👨🏻‍💻 Owner Info
+          
+                  Address: ${tokenInfo.owner}
+          
+                  Balance: ${Number(tokenInfo.ownerBalance).toFixed(2)} SOL
+                  `
+                 )
+                //  if(tokenInfo.successful == true){
+                //   ctx.reply(`Buy Successful`);
+                //  }
+                const now : any = new Date();
+                const targetTime : any = new Date(tokenInfo.startTime.getFullYear(), tokenInfo.startTime.getMonth(),tokenInfo.startTime.getDate(), tokenInfo.startTime.getHours(), tokenInfo.startTime.getMinutes(), tokenInfo.startTime.getSeconds(),tokenInfo.startTime.getMilliseconds());
+                const timeDiff : any = targetTime - now;
+                const msUntilTarget = timeDiff > 0 ? timeDiff : 86400000 - Math.abs(timeDiff);
+            //    orderBuys(msUntilTarget,tokenInfo.token.toString(),tokenInfo.lp.toString(),Number(tokenInfo.decimal))
+                 const MAX_RETRIES = 10000;
+                 const BASE_DELAY = 1000;
+                 let retries = 0;
+                 let delay = BASE_DELAY;
+                 const Addr = new PublicKey(tokenInfo.vault)
+                 let profit : Number;
+                 const subscriptionID = connection.onAccountChange(
+                 Addr,
+                 async(updatedAccountInfo, context) => {
+                   const Bal= updatedAccountInfo.lamports/1000000000
+                   const prof = Number(Bal) / Number(tokenInfo?.vaultBalance);
+                   console.log(prof);
+                while (retries < MAX_RETRIES) {
+                  try {     
+                  await ctx.reply(
+                  `
+                   ${tokenInfo.tokenSym} : ${tokenInfo.token}
+          
+                   SOL : So11111111111111111111111111111111111111112
+          
+                   ${Number(tokenInfo.vaultBalance).toFixed(2)} SOL
+                   Profit : ${Number(prof).toFixed(2)}x
+                  `
+                  )
+                 return;
+                } catch (error) {
+                  if (error.response && error.response.error_code === 429) {
+                    console.log(`Profit on console.. TG in ${delay}ms...`);
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    retries++;
+                    delay *= 1.5; // double the delay for each retry
+                    if (delay > 60000) { // limit the maximum delay to 60 seconds
+                      delay = 60000;
+                    }
+                  } else {
+                    throw error;
+                  }
+                }
+              }
+               throw new Error('Max retries exceeded');
+                }
+                 )   
+                
+              }
+               
           //    }, 10000)
           //  }else if(Response == trades[1]){
           //   ctx.reply(`${trades[1]} Without Lp
@@ -174,13 +255,10 @@ bot.on('text', async(ctx) => {
           //   setInterval(async() => { 
           //     tokenInfo = await info(trades[2])
           //     console.log(`Searching for ${trades[2]}`)
-          }
-        }, 10000);
-      });
-     }  
-    }else{ 
-     Promise.resolve(tokenInfo).then((tokenInfo) => {
-          ctx.reply(
+              }, 10000)
+            }  
+       }else{ 
+       ctx.reply(
         `  🪙 ${tokenInfo.tokenName} Token Info
 
         Name:  ${tokenInfo.tokenName}
@@ -217,7 +295,7 @@ bot.on('text', async(ctx) => {
       const targetTime : any = new Date(tokenInfo.startTime.getFullYear(), tokenInfo.startTime.getMonth(),tokenInfo.startTime.getDate(), tokenInfo.startTime.getHours(), tokenInfo.startTime.getMinutes(), tokenInfo.startTime.getSeconds(),tokenInfo.startTime.getMilliseconds());
       const timeDiff : any = targetTime - now;
       const msUntilTarget = timeDiff > 0 ? timeDiff : 86400000 - Math.abs(timeDiff);
-      orderBuys(msUntilTarget,tokenInfo.token.toString(),tokenInfo.lp.toString(),Number(tokenInfo.decimal))
+     // orderBuys(msUntilTarget,tokenInfo.token.toString(),tokenInfo.lp.toString(),Number(tokenInfo.decimal))
        const MAX_RETRIES = 10000;
        const BASE_DELAY = 1000;
        let retries = 0;
@@ -260,16 +338,11 @@ bot.on('text', async(ctx) => {
      throw new Error('Max retries exceeded');
       }
        )   
-      }).catch((error) => {
-        // Handle any errors that occurred while resolving the Promise
-        console.error(error);
-      });
+     
     }
-    
   }
     } 
 });
-
 
 bot.launch()
 
