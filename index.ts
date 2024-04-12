@@ -64,7 +64,7 @@ let token;
 let pair;
 let decimal;
 let confirm;
-const amount = 56000000
+const amount = 1000000
 
 
 
@@ -178,7 +178,10 @@ bot.on('text', async(ctx) => {
           
                   Balance: ${Number(tokenInfo.ownerBalance).toFixed(2)} SOL
                   `
-                 )                
+                 )  
+                 token = tokenInfo.token
+                 pair = tokenInfo.lp;
+                 decimal = tokenInfo.decimal;              
                 const now : any = new Date();
                 const targetTime : any = new Date(tokenInfo.startTime.getFullYear(), tokenInfo.startTime.getMonth(),tokenInfo.startTime.getDate(), tokenInfo.startTime.getHours(), tokenInfo.startTime.getMinutes(), tokenInfo.startTime.getSeconds(),tokenInfo.startTime.getMilliseconds());
                 const timeDiff : any = targetTime - now;
@@ -264,6 +267,10 @@ bot.on('text', async(ctx) => {
       //  if(tokenInfo.successful == true){
       //   ctx.reply(`Buy Successful`);
       //  }
+      token = tokenInfo.token
+      pair = tokenInfo.lp;
+      decimal = tokenInfo.decimal;
+
       const now : any = new Date();
       const targetTime : any = new Date(tokenInfo.startTime.getFullYear(), tokenInfo.startTime.getMonth(),tokenInfo.startTime.getDate(), tokenInfo.startTime.getHours(), tokenInfo.startTime.getMinutes(), tokenInfo.startTime.getSeconds(),tokenInfo.startTime.getMilliseconds());
       const timeDiff : any = targetTime - now;
@@ -328,6 +335,7 @@ async function info(pair) {
   //   pair = trade;
   //  }
    if(pair == undefined || pair == null){
+    console.log(`it is null`)
     }else{
     const mint = new anchor.web3.PublicKey(
      pair
@@ -356,6 +364,8 @@ async function info(pair) {
    const startTime = new Date(openTime * 1000); 
    const token : String = info.baseMint
    const tokenVault : String = info.baseVault
+   const solVault: String = info.quoteVault;
+   
    const lp = info.pubkey
    const decimal = info.baseDecimal;
   // const qvault = info.quoteVault;
@@ -367,21 +377,14 @@ async function info(pair) {
    }else{
    ownerBalance = await ownerInfo.lamports/1000000000;
    }
-   if(info.baseMint == SOLANA){
-     vault = await info.baseVault
-     check =  await connection.getTokenAccountBalance(
-      info.baseVault
-     ) 
-   }else{
-    vault = await info.quoteVault
+   
+   const tokenAddress = new PublicKey(solVault)
+   
+    vault = solVault
     check =  await connection.getTokenAccountBalance(
-    info.qouteVault
+    tokenAddress
   )
    const vaultBalance = await check.value.uiAmount;
-   const now : any = new Date();
-   const targetTime : any = new Date(startTime.getFullYear(), startTime.getMonth(),startTime.getDate(), startTime.getHours(), startTime.getMinutes(), startTime.getSeconds(),startTime.getMilliseconds());
-   const timeDiff : any = targetTime - now;
-   const msUntilTarget = timeDiff > 0 ? timeDiff : 86400000 - Math.abs(timeDiff);
   //  const successful =  await orderBuys(msUntilTarget,token.toString(),lp.toString(),Number(decimal))
    return {
     tokenName,
@@ -399,7 +402,7 @@ async function info(pair) {
   }
    }
   }
-}
+
 
 async function queryLpMintInfo(token: string, sol: string) {
   // See how we are only querying what we need
