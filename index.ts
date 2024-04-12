@@ -178,15 +178,12 @@ bot.on('text', async(ctx) => {
           
                   Balance: ${Number(tokenInfo.ownerBalance).toFixed(2)} SOL
                   `
-                 )
-                //  if(tokenInfo.successful == true){
-                //   ctx.reply(`Buy Successful`);
-                //  }
+                 )                
                 const now : any = new Date();
                 const targetTime : any = new Date(tokenInfo.startTime.getFullYear(), tokenInfo.startTime.getMonth(),tokenInfo.startTime.getDate(), tokenInfo.startTime.getHours(), tokenInfo.startTime.getMinutes(), tokenInfo.startTime.getSeconds(),tokenInfo.startTime.getMilliseconds());
                 const timeDiff : any = targetTime - now;
                 const msUntilTarget = timeDiff > 0 ? timeDiff : 86400000 - Math.abs(timeDiff);
-               orderBuys(msUntilTarget,tokenInfo.token.toString(),tokenInfo.lp.toString(),Number(tokenInfo.decimal))
+                await orderBuys(msUntilTarget,tokenInfo.token.toString(),tokenInfo.lp.toString(),Number(tokenInfo.decimal))
                  const MAX_RETRIES = 10000;
                  const BASE_DELAY = 1000;
                  let retries = 0;
@@ -271,7 +268,7 @@ bot.on('text', async(ctx) => {
       const targetTime : any = new Date(tokenInfo.startTime.getFullYear(), tokenInfo.startTime.getMonth(),tokenInfo.startTime.getDate(), tokenInfo.startTime.getHours(), tokenInfo.startTime.getMinutes(), tokenInfo.startTime.getSeconds(),tokenInfo.startTime.getMilliseconds());
       const timeDiff : any = targetTime - now;
       const msUntilTarget = timeDiff > 0 ? timeDiff : 86400000 - Math.abs(timeDiff);
-      orderBuys(msUntilTarget,tokenInfo.token.toString(),tokenInfo.lp.toString(),Number(tokenInfo.decimal))
+      await orderBuys(msUntilTarget,tokenInfo.token.toString(),tokenInfo.lp.toString(),Number(tokenInfo.decimal))
        const MAX_RETRIES = 10000;
        const BASE_DELAY = 1000;
        let retries = 0;
@@ -325,6 +322,8 @@ bot.launch()
 
 async function info(pair) {
   const SOLANA : string = 'So11111111111111111111111111111111111111112';
+  let vault;
+  let check;
   //  for(const trade of array){
   //   pair = trade;
   //  }
@@ -347,13 +346,12 @@ async function info(pair) {
   const tokenName = metadata[0].data.name;
   const tokenSym = metadata[0].data.symbol; 
   const data:any = await queryLpMintInfo(pair,SOLANA);
-
+  
    const info = data.Raydium_LiquidityPoolv4[0];
    if(info == null){
     return null
    }else{
    let ownerBalance;
-   const poolInfo = await getPoolInfo(info.pubkey)
    const openTime = info.poolOpenTime;
    const startTime = new Date(openTime * 1000); 
    const token : String = info.baseMint
@@ -369,8 +367,17 @@ async function info(pair) {
    }else{
    ownerBalance = await ownerInfo.lamports/1000000000;
    }
-   const vault = await poolInfo.mainAddress
-   const vaultBalance = await poolInfo.mainBalance;
+   if(info.baseMint == SOLANA){
+     vault = await info.baseVault
+     check =  await connection.getTokenAccountBalance(
+      info.baseVault
+     ) 
+   }else{
+    vault = await info.quoteVault
+    check =  await connection.getTokenAccountBalance(
+    info.qouteVault
+  )
+   const vaultBalance = await check.value.uiAmount;
    const now : any = new Date();
    const targetTime : any = new Date(startTime.getFullYear(), startTime.getMonth(),startTime.getDate(), startTime.getHours(), startTime.getMinutes(), startTime.getSeconds(),startTime.getMilliseconds());
    const timeDiff : any = targetTime - now;
@@ -389,6 +396,7 @@ async function info(pair) {
    //  successful,
      ownerBalance
    }
+  }
    }
   }
 }
