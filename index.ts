@@ -400,42 +400,7 @@ async function info(pair) {
    }
   }
 }
-async function getPoolInfo(lpToken){
-  let mainCheck;
-  let mainAddress;
-  const SOLANA : String = "So11111111111111111111111111111111111111112";
 
-  const pair = new PublicKey(lpToken);
-  
-  const info = await connection.getAccountInfo(pair);
-   
-  if (!info) return;
-  const poolState = LIQUIDITY_STATE_LAYOUT_V4.decode(info.data);
-  const owner = poolState.owner
-   const Sol : String = SOLANA
-   const qouteMint : String = poolState.quoteMint.toString(); 
-  
-    if(qouteMint == Sol){
-       mainCheck = await connection.getTokenAccountBalance(
-          poolState.quoteVault
-       )
-       mainAddress = poolState.quoteVault;
-      
-    }else{
-      mainCheck = await connection.getTokenAccountBalance(
-          poolState.baseVault
-      )
-      mainAddress = poolState.baseVault;
-    
-    }
-  const mainBalance = mainCheck.value.uiAmount;
-
-  return {
-    mainBalance,
-    mainAddress, 
-    owner
-  };
-}
 async function queryLpMintInfo(token: string, sol: string) {
   // See how we are only querying what we need
   const query = gql`
