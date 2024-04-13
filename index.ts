@@ -349,7 +349,7 @@ async function info(pair) {
     ],
     TOKEN_METADATA_PROGRAM_ID
   );
-  const accInfo = await connection.getAccountInfo(metadataPDA);
+  const accInfo = await mainConnection.getAccountInfo(metadataPDA);
   const metadata = Metadata.deserialize(accInfo.data, 0);
   const tokenName = metadata[0].data.name;
   const tokenSym = metadata[0].data.symbol; 
