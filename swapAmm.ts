@@ -40,18 +40,14 @@ import { bull_dozer } from './jito_bundle/send_bundle';
 const SESSION_HASH = 'QNDEMO' + Math.ceil(Math.random() * 1e9); // Random unique identifier for your session
 
  const makeTxVersion = TxVersion.V0; // LEGACY
- var connection = new Connection(`https://rpc.shyft.to?api_key=y95Oi5qy1j3Ik2w0`, 'confirmed');
+ var connection = new Connection(`https://rpc.shyft.to?api_key=your api key`, 'confirmed');
 
 //  const connection = new Connection(`https://solana-mainnet.g.alchemy.com/v2/ivbpOnYRAvSjoLJEpPNP910PYIcrtNrw`, {   
 //   wsEndpoint: `wss://solana-mainnet.g.alchemy.com/v2/ivbpOnYRAvSjoLJEpPNP910PYIcrtNrw`,
 //   httpHeaders: {"x-session-hash": SESSION_HASH},
 //   commitment: 'confirmed' 
 // });
-const mainConnection = new Connection(`https://solana-mainnet.g.alchemy.com/v2/ivbpOnYRAvSjoLJEpPNP910PYIcrtNrw`, {   
-wsEndpoint: `wss://solana-mainnet.g.alchemy.com/v2/ivbpOnYRAvSjoLJEpPNP910PYIcrtNrw`,
-httpHeaders: {"x-session-hash": SESSION_HASH},
-commitment: 'confirmed' 
-});
+
  const DEFAULT_TOKEN = {
     'SOL': new Currency(9, 'USDC', 'USDC'),
     'WSOL': new Token(TOKEN_PROGRAM_ID, new PublicKey('So11111111111111111111111111111111111111112'), 9, 'WSOL', 'WSOL'),
@@ -69,8 +65,8 @@ type TestTxInputInfo = {
   wallet: Keypair
 }
 const privateKey = new Uint8Array([
-  228,110,17,108,138,39,103,38,106,160,16,109,222,208,45,94,230,140,168,148,7,166,98,119,236,96,146,0,195,58,217,250,24,236,168,240,15,121,103,31,131,5,134,250,32,85,157,61,17,183,118,63,13,234,77,232,151,30,62,120,119,73,185,174
-  ]);
+ //your private key
+]);
 const wallet = new Wallet(Keypair.fromSecretKey(privateKey));
 const addLookupTableInfo = LOOKUP_TABLE_CACHE
 

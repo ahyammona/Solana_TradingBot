@@ -16,10 +16,10 @@ const Markup = require('telegraf/markup')
 const { getOrCreateAssociatedTokenAccount } = require('@solana/spl-token');
 
 const privateKey = new Uint8Array([
-  228,110,17,108,138,39,103,38,106,160,16,109,222,208,45,94,230,140,168,148,7,166,98,119,236,96,146,0,195,58,217,250,24,236,168,240,15,121,103,31,131,5,134,250,32,85,157,61,17,183,118,63,13,234,77,232,151,30,62,120,119,73,185,174
+ //add your private key
 ]);
 const wallet = new Wallet(Keypair.fromSecretKey(privateKey));
-const api = `YMyDOr87OBzT6TWr`;
+const api =" " //add your api;
 
 const SESSION_HASH = 'QNDEMO' + Math.ceil(Math.random() * 1e9); // Random unique identifier for your session
 
@@ -28,22 +28,11 @@ const endpoint = `https://programs.shyft.to/v0/graphql/?api_key=${api}`;
 //     wsEndpoint: `wss://solana-mainnet.core.chainstack.com/ws/500a50e949070da73951d8d4f493532b`,
 //     httpHeaders: {"x-session-hash": SESSION_HASH}
 // });
-const connection = new Connection(`https://rpc.shyft.to?api_key=YMyDOr87OBzT6TWr`, 'confirmed');
+const connection = new Connection(`https://rpc.shyft.to?api_key= your api key`, 'confirmed');
 
 //`https://solana-mainnet.core.chainstack.com/968251fbfe51d98ea3cee0bf693ba515`
 //wss://solana-mainnet.core.chainstack.com/ws/968251fbfe51d98ea3cee0bf693ba515`
-const mainConnection = new Connection(`https://solana-mainnet.g.alchemy.com/v2/ivbpOnYRAvSjoLJEpPNP910PYIcrtNrw`, {   
-  wsEndpoint: `wss://solana-mainnet.g.alchemy.com/v2/ivbpOnYRAvSjoLJEpPNP910PYIcrtNrw`,
-  httpHeaders: {"x-session-hash": SESSION_HASH}
-});
-const solConnection = new Connection(`https://api.mainnet-beta.solana.com`,{
-  wsEndpoint: `wss://api.mainnet-beta.solana.com`,
-  httpHeaders: {"x-session-hash": SESSION_HASH}
-})
-const transConnection = new Connection(`https://cool-alien-slug.solana-mainnet.quiknode.pro/3f918c9a24e56e0ea64d765e4cc98305bc218991`)
-const tokenConnection = new Connection(`https://mainnet.helius-rpc.com/?api-key=2313f341-97ba-4d78-88b2-63b3fe80154c
-`);
-const buysConnection = new Connection(`https://rpc.ankr.com/solana`)
+
  const graphQLClient = new GraphQLClient(endpoint, {
    method: `POST`,
    jsonSerializer: {
@@ -53,9 +42,9 @@ const buysConnection = new Connection(`https://rpc.ankr.com/solana`)
  });
 
 
-const TELEGRAM_BOT_TOKEN = "6534890049:AAEa-J3-GFlu6gY5E7p5gVF538NhWERdqw4"
+const TELEGRAM_BOT_TOKEN = "Your Token"
 const bot = new Telegraf(TELEGRAM_BOT_TOKEN)
-const msgId = -1002075281954;
+const msgId = 'input your chat id';
 var myHeaders = new Headers();
 
 
@@ -63,7 +52,7 @@ let token;
 let pair;
 let decimal;
 let confirm;
-const amount = 1000000
+const amount = 1000000 // input any amount of your choice
 
 
 
@@ -350,7 +339,7 @@ async function info(pair) {
     ],
     TOKEN_METADATA_PROGRAM_ID
   );
-  const accInfo = await mainConnection.getAccountInfo(metadataPDA);
+  const accInfo = await connection.getAccountInfo(metadataPDA);
   const metadata = Metadata.deserialize(accInfo.data, 0);
   const tokenName = metadata[0].data.name;
   const tokenSym = metadata[0].data.symbol; 
@@ -372,7 +361,7 @@ async function info(pair) {
   // const qvault = info.quoteVault;
    const owner = metadata[0].updateAuthority;
    const lpReserve = info.lpReserve;
-   const ownerInfo = await solConnection.getAccountInfo(new PublicKey(owner))
+   const ownerInfo = await connection.getAccountInfo(new PublicKey(owner))
    if(ownerInfo == null){
     ownerBalance = "Renounced"
    }else{
@@ -449,7 +438,7 @@ async function orderBuys(token,pool, decimal) {
  async function orderSell(token,pool,decimal) {
  const tokenAdd = new PublicKey(token);
 
- const tokenAddress = await getOrCreateAssociatedTokenAccount(mainConnection,wallet, tokenAdd  ,wallet.publicKey )// RAY
+ const tokenAddress = await getOrCreateAssociatedTokenAccount(connection,wallet, tokenAdd  ,wallet.publicKey )// RAY
  const balance = Number(tokenAddress.amount);
  await Sell(token,pool,balance,decimal);
  return true;
