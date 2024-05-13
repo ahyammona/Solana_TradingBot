@@ -7,7 +7,7 @@ network-main/
 oneX/
 ./sol-bot/
 wallet/
-git rm --cached wallet/
+git rm --cached wallet/*
 
 =======
 # Logs
