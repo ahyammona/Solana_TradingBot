@@ -1,22 +1,12 @@
 <<<<<<< HEAD
 node_modules/
 .env
-wallet/ethereum.js
 test.test.ts
 web.ts
-/network-main/antirug.js
-/network-main/honeyPot.js
-/network-main/index-bsc.js
-/network-main/main.js
-/network-main/swap.js
-/network-main/swapTest.js
-/oneX/arbFive.js
-/oneX/five.js
-/oneX/require.js
-/sol-bot/index-eth.js
-/wallet/bsc.js
-/wallet/eth.js
-/wallet/ethereum.js
+network-main/
+oneX/
+sol-bot/
+wallet/
 =======
 # Logs
 logs
