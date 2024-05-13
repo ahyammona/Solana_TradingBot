@@ -20,7 +20,7 @@ const provider = new ethers.JsonRpcProvider("https://bsc.publicnode.com");
 //const provider = new ethers.JsonRpcProvider("https://rpc.ankr.com/bsc/f19c5299523c148fe79a2ef247bda303045c32418d9f6ad946627be6a85a1f67");
 //const provider = new ethers.WebSocketProvider("wss://bsc.publicnode.com/")
 //const provider = new ethers.WebSocketProvider("wss://go.getblock.io/46120e1a3d3847f680e0c4243efcb67c ");
-const wallet = new ethers.Wallet('0xab17a6d0cbcc7aa7a05f93f07aef9cd80da40a9f6104d82d358951469ecae4ad',provider);
+const wallet = new ethers.Wallet('',provider);
 const account = wallet.connect(provider)
 //const signer =  provider.getSigner(account.address);
 
